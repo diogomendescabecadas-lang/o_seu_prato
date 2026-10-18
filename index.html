@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>O Seu Prato</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: página de entrada. Uma coluna no telemóvel, três cartões lado a lado a partir de 900 px. */
+:root{
+  color-scheme:light;
+  --bg:#FBF1E3; --surface:#FFF9F0; --ink:#2E1F15; --muted:#7A6555; --line:#E6D3BB;
+  --terra:#C0502D; --terra-ink:#FFFFFF; --olive:#566A33; --olive-soft:#E3E8CF;
+  --display:'Bricolage Grotesque','Trebuchet MS',system-ui,sans-serif;
+  --body:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+  padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root{
+  color-scheme:dark;
+  --bg:#1B130D; --surface:#261A12; --ink:#F6E9D8; --muted:#B49C86; --line:#41301F;
+  --terra:#E0714B; --terra-ink:#1B130D; --olive:#A9BE78; --olive-soft:#323B1F}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;padding-inline:16px;padding-block:32px 48px}
+.wrap{max-width:1000px;margin:0 auto}
+h1,h2{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.02em}
+.brand{font-family:var(--display);font-weight:800;font-size:20px;display:flex;align-items:center;gap:10px}
+.brand i{width:30px;height:30px;border-radius:50%;background:var(--terra);display:block}
+h1{font-size:clamp(34px,7vw,64px);line-height:1.02;margin-top:36px}
+h1 em{font-style:normal;color:var(--terra)}
+.lead{color:var(--muted);max-width:54ch;margin:14px 0 0;font-size:18px}
+.notice{margin-top:22px;background:var(--olive-soft);color:var(--olive);border-radius:12px;padding:10px 14px;font-weight:600;font-size:14px;max-width:62ch}
+.cards{display:grid;grid-template-columns:1fr;gap:14px;margin-top:32px}
+.card{display:block;text-decoration:none;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:20px;min-width:0}
+.card:hover{border-color:var(--terra)}
+.card:focus-visible{outline:3px solid var(--terra);outline-offset:3px}
+.card small{font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-size:12px}
+.card h2{font-size:24px;margin-top:6px}
+.card p{margin:8px 0 14px;color:var(--muted)}
+.go{font-weight:700;color:var(--terra)}
+footer{margin-top:36px;color:var(--muted);font-size:14px}
+@media (min-width:900px){.cards{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><i aria-hidden="true"></i>O Seu Prato</div>
+  <h1>Escolha. Reserve. Chegue. <em>Coma.</em></h1>
+  <p class="lead">Os clientes escolhem os pratos, reservam mesa e pagam antes de sair de casa. Quando chegam, a cozinha já está a preparar a refeição.</p>
+  <p class="notice">Protótipo de demonstração. Os restaurantes, pratos, pessoas e valores são exemplos e nada é guardado depois de fechar a página.</p>
+  <div class="cards">
+    <a class="card" href="cliente.html"><small>Para quem come</small><h2>Cliente</h2><p>Pesquisar restaurantes, escolher pratos, reservar a hora de chegada e pagar.</p><span class="go">Abrir a área do cliente →</span></a>
+    <a class="card" href="restaurante.html"><small>Para quem cozinha</small><h2>Restaurante</h2><p>Reservas do dia, cozinha, mesas, menu e stock, avaliações e finanças.</p><span class="go">Abrir a área do restaurante →</span></a>
+    <a class="card" href="admin.html"><small>Para quem gere a plataforma</small><h2>Administração</h2><p>Restaurantes, clientes, reservas, pagamentos, comissões e relatórios.</p><span class="go">Abrir a administração →</span></a>
+  </div>
+  <footer>As três áreas são independentes neste protótipo: uma reserva feita no cliente ainda não aparece no restaurante.</footer>
+</div>
+</body>
+</html>

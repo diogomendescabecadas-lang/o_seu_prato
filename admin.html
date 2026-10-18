@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<style>:root{color-scheme:light;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}.osp-bar{padding:8px 16px;font:600 13px system-ui,sans-serif}.osp-bar a{color:inherit;opacity:.7;text-decoration:none}</style>
+<title>O Seu Prato Administração</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: consola de administração. Cabeçalho com marca e selo Admin, separadores com contadores de pendentes. Listas em cartões no telemóvel, tabelas com scroll próprio para dados financeiros. */
+:root{
+  --bg:#F5ECDF; --surface:#FFFAF2; --surface2:#EFE0CA; --ink:#2A1D14; --muted:#766252;
+  --line:#E2CFB4; --terra:#C0502D; --terra-ink:#FFFFFF; --olive:#566A33; --olive-soft:#E3E8CF;
+  --gold:#B97A12; --gold-soft:#F8E8C4; --danger:#B3261E; --danger-soft:#F9DDD9; --blue:#2F5F8A; --blue-soft:#DCE8F3;
+  --display:'Bricolage Grotesque','Trebuchet MS',system-ui,sans-serif;
+  --body:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#1B130D; --surface:#261A12; --surface2:#33241A; --ink:#F6E9D8; --muted:#B49C86;
+  --line:#41301F; --terra:#E0714B; --terra-ink:#1B130D; --olive:#A9BE78; --olive-soft:#323B1F;
+  --gold:#EDB551; --gold-soft:#41331A; --danger:#FF8A80; --danger-soft:#4A2421; --blue:#8DB8E3; --blue-soft:#22364A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1B130D; --surface:#261A12; --surface2:#33241A; --ink:#F6E9D8; --muted:#B49C86;
+  --line:#41301F; --terra:#E0714B; --terra-ink:#1B130D; --olive:#A9BE78; --olive-soft:#323B1F;
+  --gold:#EDB551; --gold-soft:#41331A; --danger:#FF8A80; --danger-soft:#4A2421; --blue:#8DB8E3; --blue-soft:#22364A; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;padding-inline:16px;padding-block:0 48px;min-height:100%}
+h1,h2,h3,h4{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:8px}
+.wrap{max-width:1180px;margin:0 auto}
+.num{font-variant-numeric:tabular-nums}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);margin-inline:-16px;padding:10px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand .lg{width:34px;height:34px;border-radius:50%;background:var(--terra);color:var(--terra-ink);display:grid;place-items:center;font-family:var(--display);font-weight:800;flex:none}
+.brand b{font-family:var(--display);font-size:17px;display:block;line-height:1.1}
+.brand small{color:var(--muted);font-size:12px}
+.badge-admin{background:var(--ink);color:var(--bg);border-radius:6px;font-size:11px;font-weight:800;padding:2px 7px;letter-spacing:.06em;text-transform:uppercase;margin-left:6px;vertical-align:2px}
+.themebtn{width:36px;height:36px;border-radius:50%;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;font-size:16px;flex:none}
+.tabs{display:flex;gap:4px;overflow-x:auto;padding-block:12px;scrollbar-width:none}
+.tabs button{flex:none;padding:10px 16px;border-radius:999px;font-weight:700;color:var(--muted);display:flex;gap:8px;align-items:center}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+.cnt{background:var(--terra);color:var(--terra-ink);border-radius:999px;font-size:11px;font-weight:800;padding:1px 7px}
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;min-width:0}
+.tile small{color:var(--muted);font-weight:600;display:block}
+.tile b{font-family:var(--display);font-size:26px;line-height:1.15;display:block;overflow-wrap:anywhere}
+.tile span{color:var(--muted);font-size:12.5px}
+h2.sec{font-size:20px;margin-block:22px 10px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-bottom:10px;min-width:0}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+.p-ok{background:var(--olive-soft);color:var(--olive)}
+.p-wait{background:var(--gold-soft);color:var(--gold)}
+.p-bad{background:var(--danger-soft);color:var(--danger)}
+.p-info{background:var(--blue-soft);color:var(--blue)}
+.p-off{background:var(--surface2);color:var(--muted)}
+.meta{color:var(--muted);font-size:13.5px}
+.row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.row>div{min-width:0}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;background:var(--terra);color:var(--terra-ink);font-weight:700;border-radius:12px;padding:9px 14px;font-size:14px}
+.btn.sec{background:var(--surface2);color:var(--ink)}
+.btn.ghost{border:1.5px solid var(--line)}
+.btn.ok{background:var(--olive);color:#fff}
+.btn.danger{background:var(--danger);color:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.danger,:root:not([data-theme="light"]) .btn.ok{color:#1B130D}}
+:root[data-theme="dark"] .btn.danger,:root[data-theme="dark"] .btn.ok{color:#1B130D}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-block:4px 12px;scrollbar-width:none}
+.chip{flex:none;padding:8px 14px;border-radius:999px;background:var(--surface);border:1.5px solid var(--line);font-weight:600;font-size:14px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.search{display:flex;gap:10px;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:0 14px;margin-bottom:12px}
+.search input{border:0;background:none;width:100%;padding:12px 0;outline:none;font:inherit;color:inherit}
+.search:focus-within{border-color:var(--terra)}
+input[type=number]{font:inherit;color:inherit;background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:7px 8px;width:76px}
+.lbl{display:flex;flex-direction:column;gap:4px;font-size:12.5px;font-weight:700;color:var(--muted)}
+.grid{display:grid;gap:10px;grid-template-columns:1fr}
+.tbl{overflow-x:auto}
+.tbl table{border-collapse:collapse;width:100%;font-size:14px}
+.tbl th,.tbl td{text-align:right;padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl th{color:var(--muted);font-weight:700;font-size:12.5px}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tfoot td{font-weight:800}
+.bars{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;align-items:end;height:200px;padding-top:22px}
+.bars div{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;gap:4px;min-width:0}
+.bars i{display:block;width:100%;max-width:46px;border-radius:8px 8px 3px 3px;background:var(--surface2)}
+.bars div.last i{background:var(--terra)}
+.bars small{font-size:11.5px;color:var(--muted);font-weight:600}
+.bars b{font-size:11px}
+.hb{display:grid;grid-template-columns:minmax(80px,140px) 1fr auto;gap:10px;align-items:center;margin-block:8px;font-size:14px}
+.hb span.tr{height:10px;background:var(--surface2);border-radius:6px;overflow:hidden}
+.hb span.tr i{display:block;height:100%;background:var(--olive);border-radius:6px}
+.empty{text-align:center;color:var(--muted);padding:28px 12px}
+.todo{display:flex;gap:10px;align-items:center;justify-content:space-between;padding-block:8px;border-bottom:1px solid var(--line)}
+.todo:last-child{border:0}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(24px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;z-index:50;max-width:90%}
+.csv{width:100%;min-height:120px;font:12.5px/1.4 ui-monospace,Menlo,Consolas,monospace;background:var(--bg);color:var(--ink);border:1.5px solid var(--line);border-radius:10px;padding:10px;margin-top:10px}
+@media (min-width:640px){.tiles{grid-template-columns:repeat(4,1fr)}.grid{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:900px){.two{display:grid;grid-template-columns:1.4fr 1fr;gap:20px;align-items:start}.grid.g3{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<div class="osp-bar"><a href="./">&larr; Todas as áreas</a></div>
+
+<div class="wrap" id="app"></div>
+<div id="toast" class="toast" hidden></div>
+
+<script>
+const eur=(n,d)=>n.toLocaleString('pt-PT',{style:'currency',currency:'EUR',maximumFractionDigits:d===0?0:2,minimumFractionDigits:d===0?0:2});
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const $=s=>document.querySelector(s);
+
+/* Dados de exemplo */
+const RS=[
+ {id:'tasca',name:'Tasca do Largo',city:'Lisboa',cuisine:'Portuguesa',st:'ativo',rate:8,gmv:12840,res:612,rating:4.7,paid:true},
+ {id:'brasa',name:'Forno & Brasa',city:'Porto',cuisine:'Grelhados',st:'ativo',rate:8,gmv:9420,res:455,rating:4.5,paid:true},
+ {id:'mare',name:'Maré Alta',city:'Cascais',cuisine:'Peixe e marisco',st:'ativo',rate:9,gmv:15380,res:380,rating:4.8,paid:false},
+ {id:'oliveira',name:'Casa Oliveira',city:'Lisboa',cuisine:'Vegetariana',st:'ativo',rate:8,gmv:6210,res:360,rating:4.6,paid:false},
+ {id:'izakaya',name:'Izakaya Sol',city:'Porto',cuisine:'Japonesa',st:'ativo',rate:8,gmv:7480,res:402,rating:4.4,paid:true},
+ {id:'massa',name:'Massa Fresca',city:'Lisboa',cuisine:'Italiana',st:'ativo',rate:8,gmv:5890,res:340,rating:4.5,paid:false},
+ {id:'adega',name:'Adega Velha',city:'Braga',cuisine:'Portuguesa',st:'suspenso',rate:8,gmv:1260,res:64,rating:3.2,paid:true,why:'Várias queixas de pedidos não preparados a tempo.'},
+ {id:'cantina',name:'Cantina da Ribeira',city:'Porto',cuisine:'Portuguesa',st:'pendente',rate:8,gmv:0,res:0,rating:0,paid:true},
+ {id:'patio',name:'Pátio das Flores',city:'Faro',cuisine:'Mediterrânica',st:'pendente',rate:8,gmv:0,res:0,rating:0,paid:true}
+];
+const CL=[
+ {id:1,name:'Marta Sousa',mail:'m***@exemplo.pt',city:'Lisboa',res:14,spent:412,pts:340,noshow:0,since:'mar 2026',st:'ativo'},
+ {id:2,name:'João Pereira',mail:'j***@exemplo.pt',city:'Porto',res:9,spent:268,pts:120,noshow:1,since:'abr 2026',st:'ativo'},
+ {id:3,name:'Carla Nunes',mail:'c***@exemplo.pt',city:'Lisboa',res:21,spent:735,pts:610,noshow:0,since:'jan 2026',st:'ativo'},
+ {id:4,name:'Miguel Rocha',mail:'m***@exemplo.pt',city:'Cascais',res:6,spent:301,pts:95,noshow:0,since:'jun 2026',st:'ativo'},
+ {id:5,name:'Helena Costa',mail:'h***@exemplo.pt',city:'Lisboa',res:11,spent:289,pts:210,noshow:0,since:'fev 2026',st:'ativo'},
+ {id:6,name:'Rui Tavares',mail:'r***@exemplo.pt',city:'Porto',res:5,spent:122,pts:40,noshow:3,since:'mai 2026',st:'ativo'},
+ {id:7,name:'Sónia Lima',mail:'s***@exemplo.pt',city:'Faro',res:3,spent:97,pts:30,noshow:0,since:'ago 2026',st:'ativo'},
+ {id:8,name:'Pedro Dias',mail:'p***@exemplo.pt',city:'Lisboa',res:8,spent:176,pts:70,noshow:4,since:'mar 2026',st:'bloqueado'}
+];
+const RES=[
+ {c:'OSP-B1',cl:'Carla Nunes',r:'tasca',when:'Hoje · 19:00',n:2,tot:48.9,st:'concluida',m:'MB WAY',ps:'pago'},
+ {c:'OSP-B2',cl:'Miguel Rocha',r:'tasca',when:'Hoje · 19:30',n:4,tot:68.8,st:'confirmada',m:'Cartão',ps:'pago'},
+ {c:'OSP-B3',cl:'Helena Costa',r:'tasca',when:'Hoje · 19:45',n:2,tot:30.5,st:'confirmada',m:'MB WAY',ps:'pago'},
+ {c:'OSP-C1',cl:'João Pereira',r:'brasa',when:'Hoje · 20:00',n:3,tot:47.6,st:'confirmada',m:'Cartão',ps:'pago'},
+ {c:'OSP-C2',cl:'Sónia Lima',r:'patio',when:'Hoje · 21:00',n:4,tot:52,st:'pendente',m:'Referência MB',ps:'falhado',noacc:true},
+ {c:'OSP-D1',cl:'Rui Tavares',r:'izakaya',when:'Ontem · 20:30',n:2,tot:31.4,st:'naoveio',m:'MB WAY',ps:'pago'},
+ {c:'OSP-D2',cl:'Marta Sousa',r:'mare',when:'Ontem · 13:00',n:2,tot:62.4,st:'concluida',m:'Cartão',ps:'pago'},
+ {c:'OSP-D3',cl:'Pedro Dias',r:'adega',when:'Ontem · 21:00',n:2,tot:34,st:'cancelada',m:'Cartão',ps:'reembolsado'},
+ {c:'OSP-E1',cl:'Marta Sousa',r:'oliveira',when:'Qua · 20:00',n:2,tot:41.8,st:'concluida',m:'MB WAY',ps:'pago'},
+ {c:'OSP-E2',cl:'Carla Nunes',r:'massa',when:'Qua · 13:15',n:2,tot:36,st:'concluida',m:'Apple Pay',ps:'pago'}
+];
+const WEEKS=[['S34',17900],['S35',19200],['S36',18400],['S37',21300],['S38',22800],['S39',24100],['S40',23600],['S41',25400]];
+const rn=id=>RS.find(r=>r.id===id).name;
+const S={tab:'geral',q:'',rf:'todos',rsf:'todas',pf:'todos',ask:null,csv:''};
+const tabsDef=()=>[['geral','Visão geral'],['rest','Restaurantes',RS.filter(r=>r.st==='pendente').length],['cli','Clientes'],['res','Reservas'],['pag','Pagamentos',RES.filter(r=>r.ps==='falhado').length],['com','Comissões'],['rel','Relatórios']];
+function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2400)}
+const act=()=>RS.filter(r=>r.st==='ativo'||r.st==='suspenso');
+const gmv=()=>act().reduce((a,r)=>a+r.gmv,0);
+const comm=r=>r.gmv*r.rate/100;
+const commTot=()=>act().reduce((a,r)=>a+comm(r),0);
+const rstPill={ativo:['Ativo','p-ok'],suspenso:['Suspenso','p-bad'],pendente:['Por aprovar','p-wait']};
+const resPill={confirmada:['Confirmada','p-info'],concluida:['Concluída','p-ok'],cancelada:['Cancelada','p-off'],naoveio:['Não veio','p-bad'],pendente:['Sem pagamento','p-wait'],reembolsada:['Reembolsada','p-off']};
+const payPill={pago:['Pago','p-ok'],falhado:['Falhado','p-bad'],reembolsado:['Reembolsado','p-off'],pendente:['Pendente','p-wait']};
+function confirmBtn(key,label,act,id,cls){
+  if(S.ask===key)return `<button class="btn danger" data-a="${act}" data-v="${id}">Confirmar</button><button class="btn ghost" data-a="noask">Cancelar</button>`;
+  return `<button class="btn ${cls||'ghost'}" data-a="ask" data-v="${key}">${label}</button>`;
+}
+
+function header(){
+  return `<header class="top"><div class="brand"><div class="lg">O</div><div><b>O Seu Prato<span class="badge-admin">Admin</span></b><small>Administração da plataforma</small></div></div><button class="themebtn" data-a="theme" aria-label="Alternar tema">◐</button></header>
+  <nav class="tabs" role="tablist">${tabsDef().map(([k,l,c])=>`<button role="tab" data-a="tab" data-v="${k}" aria-selected="${S.tab===k}">${l}${c?`<span class="cnt">${c}</span>`:''}</button>`).join('')}</nav>`;
+}
+
+function geral(){
+  const pend=RS.filter(r=>r.st==='pendente');
+  const failed=RES.filter(r=>r.ps==='falhado');
+  const noshow=RES.filter(r=>r.st==='naoveio');
+  const max=Math.max(...WEEKS.map(w=>w[1]));
+  const top=[...act()].sort((a,b)=>b.gmv-a.gmv).slice(0,5);const tm=top[0].gmv;
+  const todo=[
+   ...pend.map(r=>`<div class="todo"><span><b>${r.name}</b><br><span class="meta">${r.city} · quer entrar na plataforma</span></span><button class="btn" data-a="go" data-v="rest">Rever</button></div>`),
+   ...failed.map(r=>`<div class="todo"><span><b>Pagamento falhado</b><br><span class="meta">${r.c} · ${esc(r.cl)} · ${eur(r.tot)}</span></span><button class="btn sec" data-a="go" data-v="pag">Ver</button></div>`),
+   ...noshow.map(r=>`<div class="todo"><span><b>Não compareceu</b><br><span class="meta">${esc(r.cl)} · ${rn(r.r)}</span></span><button class="btn sec" data-a="go" data-v="cli">Ver cliente</button></div>`)
+  ];
+  return `<div class="tiles"><div class="tile"><small>Vendas do mês (GMV)</small><b class="num">${eur(gmv(),0)}</b><span>pré-pagas na plataforma</span></div>
+  <div class="tile"><small>Receita em comissões</small><b class="num">${eur(commTot(),0)}</b><span class="num">${(commTot()/gmv()*100).toFixed(1).replace('.',',')}% das vendas</span></div>
+  <div class="tile"><small>Reservas no mês</small><b class="num">${act().reduce((a,r)=>a+r.res,0).toLocaleString('pt-PT')}</b><span>${act().length} restaurantes</span></div>
+  <div class="tile"><small>Clientes ativos</small><b class="num">${CL.filter(c=>c.st==='ativo').length}</b><span>${CL.length} registados (amostra)</span></div></div>
+  <div class="two"><div><h2 class="sec">Vendas por semana</h2><div class="panel"><div class="bars" role="img" aria-label="Vendas semanais, em milhares de euros">${WEEKS.map(([w,v],i)=>`<div class="${i===WEEKS.length-1?'last':''}"><b class="num">${(v/1000).toFixed(1).replace('.',',')}k</b><i style="height:${v/max*100}%"></i><small>${w}</small></div>`).join('')}</div></div>
+  <h2 class="sec">Restaurantes com mais vendas</h2><div class="panel">${top.map(r=>`<div class="hb"><span>${r.name}</span><span class="tr"><i style="width:${r.gmv/tm*100}%"></i></span><b class="num">${eur(r.gmv,0)}</b></div>`).join('')}</div></div>
+  <div><h2 class="sec">Por resolver</h2><div class="panel">${todo.length?todo.join(''):'<div class="empty">Nada pendente.</div>'}</div></div></div>`;
+}
+function rest(){
+  const F=[['todos','Todos'],['ativo','Ativos'],['pendente','Por aprovar'],['suspenso','Suspensos']];
+  const l=RS.filter(r=>S.rf==='todos'||r.st===S.rf);
+  return `<div class="chips">${F.map(([k,t])=>`<button class="chip" data-a="rf" data-v="${k}" aria-pressed="${S.rf===k}">${t}</button>`).join('')}</div>
+  <div class="grid">${l.map(r=>{const [pl,pc]=rstPill[r.st];return `<div class="panel"><div class="row"><div><h3 style="font-size:18px">${r.name}</h3><div class="meta">${r.cuisine} · ${r.city}</div></div><span class="pill ${pc}">${pl}</span></div>
+  ${r.st==='pendente'?`<div class="meta" style="margin-top:8px">Pedido de adesão com documentação enviada. Confirme a licença e a morada antes de aprovar.</div>`:`<div class="meta num" style="margin-top:8px">${r.res} reservas · ${eur(r.gmv,0)} · ${r.rating?'★ '+r.rating.toFixed(1):'sem avaliações'}</div>`}
+  ${r.why?`<div class="meta" style="margin-top:6px;color:var(--danger)">${r.why}</div>`:''}
+  <div class="acts">${r.st==='pendente'?`<button class="btn ok" data-a="approve" data-v="${r.id}">Aprovar</button>${confirmBtn('rj'+r.id,'Recusar','reject',r.id)}`:
+   r.st==='ativo'?`<label class="lbl" style="flex-direction:row;align-items:center;gap:8px">Comissão <input type="number" min="0" max="30" step="0.5" value="${r.rate}" data-rate="${r.id}" aria-label="Comissão de ${esc(r.name)}"> %</label>${confirmBtn('sp'+r.id,'Suspender','suspend',r.id)}`:
+   `<button class="btn" data-a="reactivate" data-v="${r.id}">Reativar</button>`}</div></div>`}).join('')}</div>`;
+}
+function cli(){
+  const q=S.q.trim().toLowerCase();
+  const l=CL.filter(c=>!q||(c.name+c.city).toLowerCase().includes(q));
+  return `<label class="search"><input id="q" type="search" placeholder="Procurar cliente ou cidade" value="${esc(S.q)}" autocomplete="off"></label><div id="cl">${cliList(l)}</div>`;
+}
+function cliList(l){
+  return l.length?`<div class="grid">${l.map(c=>`<div class="panel"><div class="row"><div><h3 style="font-size:17px">${esc(c.name)}</h3><div class="meta">${c.mail} · ${c.city} · desde ${c.since}</div></div><span class="pill ${c.st==='ativo'?'p-ok':'p-bad'}">${c.st==='ativo'?'Ativo':'Bloqueado'}</span></div>
+  <div class="meta num" style="margin-top:8px">${c.res} reservas · ${eur(c.spent,0)} gastos · ${c.pts} pontos</div>
+  ${c.noshow>=3?`<div class="meta" style="color:var(--danger);margin-top:4px">${c.noshow} faltas sem aviso. Considere limitar reservas.</div>`:c.noshow?`<div class="meta" style="margin-top:4px">${c.noshow} falta sem aviso</div>`:''}
+  <div class="acts">${c.st==='ativo'?confirmBtn('bl'+c.id,'Bloquear conta','block',c.id):`<button class="btn" data-a="unblock" data-v="${c.id}">Desbloquear</button>`}</div></div>`).join('')}</div>`:'<div class="empty">Nenhum cliente encontrado.</div>';
+}
+function res(){
+  const F=[['todas','Todas'],['confirmada','Confirmadas'],['concluida','Concluídas'],['problema','Com problema']];
+  const l=RES.filter(r=>S.rsf==='todas'||(S.rsf==='problema'?['naoveio','pendente'].includes(r.st)||r.ps==='falhado':r.st===S.rsf));
+  return `<div class="chips">${F.map(([k,t])=>`<button class="chip" data-a="rsf" data-v="${k}" aria-pressed="${S.rsf===k}">${t}</button>`).join('')}</div>
+  <div class="grid">${l.map(r=>{const [pl,pc]=resPill[r.st];const [ql,qc]=payPill[r.ps];return `<div class="panel"><div class="row"><div><b>${rn(r.r)}</b><div class="meta">${esc(r.cl)} · ${r.n} pess. · ${r.when}</div></div><span class="pill ${pc}">${pl}</span></div>
+  <div class="row" style="margin-top:8px;align-items:center"><span class="meta num">${r.c} · ${eur(r.tot)}</span><span class="pill ${qc}">${ql}</span></div>
+  ${r.noacc?`<div class="meta" style="color:var(--danger);margin-top:6px">Restaurante ainda sem aprovação: reserva bloqueada.</div>`:''}
+  ${r.st==='confirmada'?`<div class="acts">${confirmBtn('cx'+r.c,'Cancelar e reembolsar','refund',r.c)}</div>`:''}</div>`}).join('')}</div>`;
+}
+function pag(){
+  const F=[['todos','Todos'],['pago','Pagos'],['falhado','Falhados'],['reembolsado','Reembolsados']];
+  const l=RES.filter(r=>S.pf==='todos'||r.ps===S.pf);
+  const sum=k=>RES.filter(r=>r.ps===k).reduce((a,r)=>a+r.tot,0);
+  return `<div class="tiles"><div class="tile"><small>Recebido</small><b class="num">${eur(sum('pago'))}</b><span>${RES.filter(r=>r.ps==='pago').length} pagamentos</span></div>
+  <div class="tile"><small>Falhados</small><b class="num">${eur(sum('falhado'))}</b><span>${RES.filter(r=>r.ps==='falhado').length} por resolver</span></div>
+  <div class="tile"><small>Reembolsado</small><b class="num">${eur(sum('reembolsado'))}</b><span>${RES.filter(r=>r.ps==='reembolsado').length} reservas</span></div>
+  <div class="tile"><small>Método mais usado</small><b>MB WAY</b><span>4 de 10 pagamentos</span></div></div>
+  <div class="chips" style="margin-top:14px">${F.map(([k,t])=>`<button class="chip" data-a="pf" data-v="${k}" aria-pressed="${S.pf===k}">${t}</button>`).join('')}</div>
+  <div class="panel tbl"><table><thead><tr><th>Código</th><th>Cliente</th><th>Método</th><th>Valor</th><th>Estado</th><th></th></tr></thead><tbody>
+  ${l.map(r=>`<tr><td class="num">${r.c}</td><td>${esc(r.cl)}</td><td>${r.m}</td><td class="num">${eur(r.tot)}</td><td><span class="pill ${payPill[r.ps][1]}">${payPill[r.ps][0]}</span></td><td>${r.ps==='falhado'&&!r.noacc?`<button class="btn sec" data-a="retry" data-v="${r.c}">Reenviar pedido</button>`:r.ps==='falhado'?'<span class="meta">Reserva bloqueada</span>':''}</td></tr>`).join('')}</tbody></table></div>`;
+}
+function com(){
+  const rows=act();const g=gmv(),c=commTot();
+  const due=rows.filter(r=>!r.paid).reduce((a,r)=>a+(r.gmv-comm(r)),0);
+  return `<div class="tiles"><div class="tile"><small>Comissões do mês</small><b class="num">${eur(c,0)}</b><span>receita da plataforma</span></div>
+  <div class="tile"><small>Taxa média</small><b class="num">${(c/g*100).toFixed(1).replace('.',',')}%</b><span>sobre ${eur(g,0)}</span></div>
+  <div class="tile"><small>A pagar aos restaurantes</small><b class="num">${eur(due,0)}</b><span>${rows.filter(r=>!r.paid).length} por liquidar</span></div>
+  <div class="tile"><small>Já liquidado</small><b class="num">${eur(rows.filter(r=>r.paid).reduce((a,r)=>a+r.gmv-comm(r),0),0)}</b><span>${rows.filter(r=>r.paid).length} restaurantes</span></div></div>
+  <h2 class="sec">Por restaurante</h2><div class="panel tbl"><table><thead><tr><th>Restaurante</th><th>Vendas</th><th>Taxa</th><th>Comissão</th><th>A pagar</th><th>Estado</th></tr></thead><tbody>
+  ${rows.map(r=>`<tr><td>${r.name}</td><td class="num">${eur(r.gmv,0)}</td><td class="num">${r.rate}%</td><td class="num">${eur(comm(r))}</td><td class="num"><b>${eur(r.gmv-comm(r))}</b></td><td>${r.paid?'<span class="pill p-ok">Pago</span>':`<button class="btn ok" data-a="settle" data-v="${r.id}">Marcar pago</button>`}</td></tr>`).join('')}</tbody>
+  <tfoot><tr><td>Total</td><td class="num">${eur(g,0)}</td><td></td><td class="num">${eur(c)}</td><td class="num">${eur(g-c)}</td><td></td></tr></tfoot></table></div>
+  <p class="meta">A taxa de cada restaurante altera-se no separador Restaurantes. Os valores aqui atualizam logo.</p>`;
+}
+function rel(){
+  const total=RES.length;const ns=RES.filter(r=>r.st==='naoveio').length;
+  const byC={};act().forEach(r=>byC[r.cuisine]=(byC[r.cuisine]||0)+r.gmv);
+  const cu=Object.entries(byC).sort((a,b)=>b[1]-a[1]);const cm=cu[0][1];
+  const byCity={};act().forEach(r=>byCity[r.city]=(byCity[r.city]||0)+r.res);
+  const ct=Object.entries(byCity).sort((a,b)=>b[1]-a[1]);const ctm=ct[0][1];
+  const avg=gmv()/act().reduce((a,r)=>a+r.res,0);
+  return `<div class="tiles"><div class="tile"><small>Valor médio por reserva</small><b class="num">${eur(avg)}</b><span>no mês</span></div>
+  <div class="tile"><small>Não comparências</small><b class="num">${(ns/total*100).toFixed(0)}%</b><span>amostra de ${total} reservas</span></div>
+  <div class="tile"><small>Novos clientes</small><b class="num">+248</b><span>face ao mês anterior: +12%</span></div>
+  <div class="tile"><small>Clientes que voltam</small><b class="num">61%</b><span>fizeram 2 ou mais reservas</span></div></div>
+  <div class="two"><div><h2 class="sec">Vendas por tipo de cozinha</h2><div class="panel">${cu.map(([k,v])=>`<div class="hb"><span>${k}</span><span class="tr"><i style="width:${v/cm*100}%"></i></span><b class="num">${eur(v,0)}</b></div>`).join('')}</div></div>
+  <div><h2 class="sec">Reservas por cidade</h2><div class="panel">${ct.map(([k,v])=>`<div class="hb"><span>${k}</span><span class="tr"><i style="width:${v/ctm*100}%"></i></span><b class="num">${v}</b></div>`).join('')}</div></div></div>
+  <div class="panel"><h3 style="font-size:17px">Exportar</h3><p class="meta" style="margin:4px 0 0">Gera os dados de comissões em CSV para abrir numa folha de cálculo.</p><div class="acts"><button class="btn" data-a="csv">Gerar CSV</button>${S.csv?`<button class="btn sec" data-a="copycsv">Copiar</button>`:''}</div>${S.csv?`<textarea class="csv" id="csvbox" readonly>${esc(S.csv)}</textarea>`:''}</div>`;
+}
+function render(){
+  const body={geral,rest,cli,res,pag,com,rel}[S.tab]();
+  $('#app').innerHTML=header()+`<main>${body}</main>`;
+  const q=$('#q');if(q)q.addEventListener('input',e=>{S.q=e.target.value;const t=S.q.trim().toLowerCase();$('#cl').innerHTML=cliList(CL.filter(c=>!t||(c.name+c.city).toLowerCase().includes(t)))});
+}
+const R=id=>RS.find(r=>r.id===id);
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-a]');if(!t)return;
+  const a=t.dataset.a,v=t.dataset.v;
+  switch(a){
+    case 'tab':S.tab=v;S.ask=null;break;
+    case 'go':S.tab=v;S.ask=null;window.scrollTo(0,0);break;
+    case 'rf':S.rf=v;break;
+    case 'rsf':S.rsf=v;break;
+    case 'pf':S.pf=v;break;
+    case 'ask':S.ask=v;break;
+    case 'noask':S.ask=null;break;
+    case 'approve':R(v).st='ativo';toast(R(v).name+' aprovado e visível aos clientes');break;
+    case 'reject':RS.splice(RS.findIndex(r=>r.id===v),1);S.ask=null;toast('Pedido recusado');break;
+    case 'suspend':{const r=R(v);r.st='suspenso';r.why='Suspenso pela administração.';S.ask=null;toast(r.name+' suspenso: deixa de aparecer nas pesquisas');break}
+    case 'reactivate':{const r=R(v);r.st='ativo';delete r.why;toast(r.name+' reativado');break}
+    case 'block':{CL.find(c=>c.id===+v).st='bloqueado';S.ask=null;toast('Conta bloqueada');break}
+    case 'unblock':CL.find(c=>c.id===+v).st='ativo';toast('Conta desbloqueada');break;
+    case 'refund':{const r=RES.find(x=>x.c===v);r.st='cancelada';r.ps='reembolsado';S.ask=null;toast('Reserva cancelada e '+eur(r.tot)+' reembolsados');break}
+    case 'retry':{const r=RES.find(x=>x.c===v);r.ps='pendente';r.st='pendente';toast('Novo pedido de pagamento enviado ao cliente');break}
+    case 'settle':R(v).paid=true;toast('Pagamento a '+R(v).name+' registado');break;
+    case 'csv':S.csv='restaurante;vendas;taxa_pct;comissao;a_pagar;estado\n'+act().map(r=>[r.name,r.gmv.toFixed(2),r.rate,comm(r).toFixed(2),(r.gmv-comm(r)).toFixed(2),r.paid?'pago':'por pagar'].join(';')).join('\n');break;
+    case 'copycsv':{const done=()=>toast('CSV copiado');const sel=()=>{const b=$('#csvbox');b.focus();b.select();toast('Selecione e copie o texto')};
+      try{navigator.clipboard.writeText(S.csv).then(done,sel)}catch(_){sel()}return}
+    case 'theme':{const d=document.documentElement;const dark=d.dataset.theme?d.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches;d.dataset.theme=dark?'light':'dark';break}
+  }
+  render();
+});
+document.addEventListener('change',e=>{
+  const id=e.target.dataset&&e.target.dataset.rate;if(!id)return;
+  const v=parseFloat(e.target.value);const r=R(id);
+  if(v>=0&&v<=30){r.rate=v;toast('Comissão de '+r.name+': '+v+'%')}else{e.target.value=r.rate;toast('Indique uma taxa entre 0 e 30')}
+});
+render();
+</script>
+
+</body>
+</html>
