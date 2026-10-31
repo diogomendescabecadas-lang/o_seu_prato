@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Registo — O Seu Prato</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+:root{--bg:#FBF1E3;--surface:#FFF9F0;--ink:#2E1F15;--muted:#6A5748;--line:#E6D3BB;--terra:#C0502D;--olive:#566A33;--olive-soft:#E3E8CF;--danger:#B3261E}
+@media (prefers-color-scheme:dark){:root{--bg:#1B130D;--surface:#261A12;--ink:#F6E9D8;--muted:#B49C86;--line:#41301F;--terra:#E0714B;--olive:#A9BE78;--olive-soft:#323B1F;--danger:#FF8A80}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 'Figtree',system-ui,sans-serif;padding:24px 16px 48px}
+main{max-width:480px;margin:0 auto}
+img.logo{width:200px;max-width:70%;height:auto;display:block;margin:0 0 20px}
+.brand{font-family:'Bricolage Grotesque','Trebuchet MS',sans-serif;font-weight:800;font-size:26px;letter-spacing:-.02em;margin:0 0 20px}
+.brand span{color:var(--terra)}
+.tag{display:inline-block;background:var(--olive-soft);color:var(--olive);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;padding:6px 12px;border-radius:999px}
+h1{font-family:'Bricolage Grotesque','Trebuchet MS',sans-serif;font-weight:800;font-size:38px;line-height:1;letter-spacing:-.03em;margin:16px 0 12px}
+h1 span{color:var(--terra)}
+p.lead{margin:0 0 20px;font-size:18px}
+form{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:20px;display:grid;gap:16px}
+label{font-weight:700;display:grid;gap:6px}
+label small{font-weight:400;color:var(--muted)}
+input[type=text],input[type=email],input[type=tel]{font:inherit;color:inherit;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:14px;min-height:48px;width:100%}
+input:focus-visible,button:focus-visible{outline:3px solid #D99A2B;outline-offset:2px}
+.check{display:flex;gap:12px;align-items:flex-start;font-weight:400;font-size:15px}
+.check input{width:24px;height:24px;margin:0;flex-shrink:0;accent-color:var(--terra)}
+button{font:inherit;font-weight:700;font-size:18px;background:var(--terra);color:#fff;border:0;border-radius:14px;min-height:54px;cursor:pointer}
+button[disabled]{opacity:.6}
+.msg{margin:0;padding:14px;border-radius:12px;font-weight:600}
+.ok{background:var(--olive-soft);color:var(--olive)}
+.err{background:#fde7e5;color:var(--danger)}
+.hp{position:absolute;left:-9999px}
+.fine{font-size:13px;color:var(--muted);margin:16px 0 0}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+  <div class="brand">O Seu <span>Prato</span></div>
+  <span class="tag">Em breve</span>
+  <h1>Seja dos primeiros<br>a <span>usar</span></h1>
+  <p class="lead">Escolha. Reserve. Chegue. Coma.<br>Deixe o seu contacto e avisamos quando o serviço abrir.</p>
+
+  <form id="f" method="post" novalidate>
+    <label>Nome
+      <input type="text" name="nome" autocomplete="name" required>
+    </label>
+    <label>Email
+      <input type="email" name="email" autocomplete="email" inputmode="email" required>
+    </label>
+    <label>Telemóvel <small>(opcional)</small>
+      <input type="tel" name="telemovel" autocomplete="tel" inputmode="tel">
+    </label>
+    <label>Restaurante onde viu este código <small>(opcional)</small>
+      <input type="text" name="restaurante">
+    </label>
+    <input class="hp" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <label class="check">
+      <input type="checkbox" name="consentimento" value="sim" required>
+      <span>Aceito que O Seu Prato guarde o meu contacto para me avisar do lançamento. Posso pedir a remoção a qualquer momento.</span>
+    </label>
+    <button type="submit" id="b">Quero ser avisado</button>
+    <p id="m" class="msg" role="status" hidden></p>
+  </form>
+  <p class="fine">Não enviamos spam nem partilhamos o seu contacto. O serviço ainda está em fase de lançamento: não é possível fazer reservas nem pagamentos neste momento.</p>
+</main>
+<script src="api.js"></script>
+<script>
+// Endereço do serviço que recebe os registos (Formspree). Substituir pelo seu: https://formspree.io/f/XXXXXXXX
+var ENDPOINT = "https://formspree.io/f/SUBSTITUIR";
+var f=document.getElementById('f'),b=document.getElementById('b'),m=document.getElementById('m');
+function show(t,c){m.textContent=t;m.className='msg '+c;m.hidden=false}
+f.addEventListener('submit',function(e){
+  e.preventDefault();
+  var d=new FormData(f);
+  if(!d.get('nome').trim()||!/^\S+@\S+\.\S+$/.test(d.get('email').trim())){show('Indique o seu nome e um email válido.','err');return}
+  if(!f.consentimento.checked){show('Para continuar, aceite a caixa de consentimento.','err');return}
+  if(OSP.on){
+    b.disabled=true;b.textContent='A enviar…';
+    OSP.post('/api/preregistos',{nome:d.get('nome'),email:d.get('email'),telemovel:d.get('telemovel')||undefined,restaurante:d.get('restaurante')||undefined,consentimento:true,_gotcha:d.get('_gotcha')||undefined})
+      .then(function(){f.reset();show('Obrigado! Avisamos assim que o serviço abrir.','ok');b.hidden=true})
+      .catch(function(e){show(e.message||'Não foi possível enviar. Tente outra vez.','err');b.disabled=false;b.textContent='Quero ser avisado'});
+    return;
+  }
+  if(ENDPOINT.indexOf('SUBSTITUIR')>-1){show('Formulário ainda não ligado. Volte mais tarde.','err');return}
+  b.disabled=true;b.textContent='A enviar…';
+  fetch(ENDPOINT,{method:'POST',body:d,headers:{Accept:'application/json'}}).then(function(r){
+    if(r.ok){f.reset();show('Obrigado! Avisamos assim que o serviço abrir.','ok');b.hidden=true}
+    else{throw 0}
+  }).catch(function(){show('Não foi possível enviar. Tente outra vez.','err');b.disabled=false;b.textContent='Quero ser avisado'});
+});
+</script>
+</body>
+</html>
