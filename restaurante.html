@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<style>:root{color-scheme:light;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}.osp-bar{padding:8px 16px;font:600 13px system-ui,sans-serif}.osp-bar a{color:inherit;opacity:.7;text-decoration:none}</style>
+<title>O Seu Prato Restaurante</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: painel operacional. Cabeçalho com relógio do serviço, separadores Hoje/Reservas/Cozinha/Mesas. Cozinha em 3 colunas no ecrã largo, empilhada no telemóvel. */
+:root{
+  --bg:#F7EEE0; --surface:#FFFAF2; --surface2:#F1E3CE; --ink:#2E1F15; --muted:#7A6555;
+  --line:#E3D0B6; --terra:#C0502D; --terra-ink:#FFFFFF; --olive:#566A33; --olive-soft:#E3E8CF;
+  --gold:#B97A12; --gold-soft:#F8E8C4; --danger:#B3261E; --danger-soft:#F9DDD9; --blue:#2F5F8A; --blue-soft:#DCE8F3;
+  --display:'Bricolage Grotesque','Trebuchet MS',system-ui,sans-serif;
+  --body:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#1B130D; --surface:#261A12; --surface2:#33241A; --ink:#F6E9D8; --muted:#B49C86;
+  --line:#41301F; --terra:#E0714B; --terra-ink:#1B130D; --olive:#A9BE78; --olive-soft:#323B1F;
+  --gold:#EDB551; --gold-soft:#41331A; --danger:#FF8A80; --danger-soft:#4A2421; --blue:#8DB8E3; --blue-soft:#22364A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1B130D; --surface:#261A12; --surface2:#33241A; --ink:#F6E9D8; --muted:#B49C86;
+  --line:#41301F; --terra:#E0714B; --terra-ink:#1B130D; --olive:#A9BE78; --olive-soft:#323B1F;
+  --gold:#EDB551; --gold-soft:#41331A; --danger:#FF8A80; --danger-soft:#4A2421; --blue:#8DB8E3; --blue-soft:#22364A; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;padding-inline:16px;padding-block:0 40px;min-height:100%}
+h1,h2,h3,h4{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:8px}
+.wrap{max-width:1180px;margin:0 auto}
+.num{font-variant-numeric:tabular-nums}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);margin-inline:-16px;padding:10px 16px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand .lg{width:34px;height:34px;border-radius:50%;background:var(--terra);color:var(--terra-ink);display:grid;place-items:center;font-family:var(--display);font-weight:800;flex:none}
+.brand b{font-family:var(--display);font-size:17px;display:block;line-height:1.1}
+.brand small{color:var(--muted);font-size:12px}
+.clock{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 4px 4px 14px;font-weight:700}
+.clock button{background:var(--surface2);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700}
+.tabs{display:flex;gap:4px;overflow-x:auto;padding-block:12px;scrollbar-width:none}
+.tabs button{flex:none;padding:10px 16px;border-radius:999px;font-weight:700;color:var(--muted);display:flex;gap:8px;align-items:center}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+.cnt{background:var(--terra);color:var(--terra-ink);border-radius:999px;font-size:11px;font-weight:800;padding:1px 7px}
+
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px}
+.tile small{color:var(--muted);font-weight:600;display:block}
+.tile b{font-family:var(--display);font-size:28px;line
