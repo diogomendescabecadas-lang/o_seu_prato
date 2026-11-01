@@ -62,4 +62,6 @@ window.OSP = (function () {
     post: (p, b, t) => call('POST', p, b || {}, t),
     cents: (n) => n / 100,
     toCents: (e) => Math.round(e * 100),
-    isoDate: (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart
+    isoDate: (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'),
+  };
+})();
