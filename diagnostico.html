@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="pt"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Diagnóstico</title></head>
+<body style="font:16px system-ui;padding:16px">
+<h2>Diagnóstico</h2>
+<pre id="o" style="white-space:pre-wrap;word-break:break-word"></pre>
+<div id="app"></div><div id="toast" hidden></div>
+<script>
+var o=document.getElementById('o');
+function p(t){o.textContent+=t+'\n'}
+window.onerror=function(m,s,l,c){p('ERRO: '+m+' ('+String(s||'').split('/').pop()+', linha '+l+')')};
+['api.js','cliente-1.js','cliente-2.js','cliente-3.js'].forEach(function(f){
+  fetch(f+'?t='+Date.now()).then(function(r){return r.text().then(function(t){
+    p(f+': estado '+r.status+', '+t.length+' caracteres, fim: '+JSON.stringify(t.slice(-45)))})
+  }).catch(function(e){p(f+': falhou '+e)});
+});
+</script>
+<script src="api.js"></script>
+<script src="cliente-1.js"></script>
+<script src="cliente-2.js"></script>
+<script src="cliente-3.js"></script>
+<script>p('Fim do carregamento. Sem mais erros acima = os scripts correram.')</script>
+</body></html>
