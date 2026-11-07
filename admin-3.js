@@ -1,195 +1,66 @@
-<!doctype html>
-<html lang="pt">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="robots" content="noindex">
-<style>:root{color-scheme:light;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}.osp-bar{padding:8px 16px;font:600 13px system-ui,sans-serif}.osp-bar a{color:inherit;opacity:.7;text-decoration:none}</style>
-<title>O Seu Prato Administração</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
-<style>
-/* Layout: consola de administração. Cabeçalho com marca e selo Admin, separadores com contadores de pendentes. Listas em cartões no telemóvel, tabelas com scroll próprio para dados financeiros. */
-:root{
-  --bg:#F5ECDF; --surface:#FFFAF2; --surface2:#EFE0CA; --ink:#2A1D14; --muted:#766252;
-  --line:#E2CFB4; --terra:#C0502D; --terra-ink:#FFFFFF; --olive:#566A33; --olive-soft:#E3E8CF;
-  --gold:#B97A12; --gold-soft:#F8E8C4; --danger:#B3261E; --danger-soft:#F9DDD9; --blue:#2F5F8A; --blue-soft:#DCE8F3;
-  --display:'Bricolage Grotesque','Trebuchet MS',system-ui,sans-serif;
-  --body:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+function disp(){
+  if(!ON)return '<div class="empty">As disputas de faltas aparecem aqui quando o serviço estiver ligado.</div>';
+  if(!DISP.length)return '<div class="empty">Sem disputas abertas.</div>';
+  return `<p class="meta" style="margin-top:0">Quando um cliente contesta uma falta, ou diz na app que chegou e o restaurante marca falta, o dinheiro fica retido até decidir.</p><div class="grid">`+DISP.map(d=>`<div class="panel">
+  <div class="nm"><b>${esc(d.restaurantName)}</b> <span class="pill p-bad">${String(d.disputeNote||'').startsWith('Problema')?'Problema reportado':'Falta contestada'}</span></div>
+  <div class="meta">Cliente: ${esc(d.customerName)} · Reserva ${d.code} · ${d.date.slice(8)}/${d.date.slice(5,7)} às ${d.time}</div>
+  <div class="meta">Valor retido: <b>${eur(d.heldCents/100)}</b>${d.arrivedClaim?' · Cliente indicou chegada às '+d.arrivedClaim.slice(11):''}</div>
+  <div class="meta">${esc(d.disputeNote||'')}</div>
+  <div class="acts">${confirmBtn('dc'+d.id,'Dar razão ao cliente (devolver)','dispC',d.id,'ghost')}${confirmBtn('dr'+d.id,'Dar razão ao restaurante (libertar)','dispR',d.id,'ghost')}</div></div>`).join('')+'</div>';
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#1B130D; --surface:#261A12; --surface2:#33241A; --ink:#F6E9D8; --muted:#B49C86;
-  --line:#41301F; --terra:#E0714B; --terra-ink:#1B130D; --olive:#A9BE78; --olive-soft:#323B1F;
-  --gold:#EDB551; --gold-soft:#41331A; --danger:#FF8A80; --danger-soft:#4A2421; --blue:#8DB8E3; --blue-soft:#22364A; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#1B130D; --surface:#261A12; --surface2:#33241A; --ink:#F6E9D8; --muted:#B49C86;
-  --line:#41301F; --terra:#E0714B; --terra-ink:#1B130D; --olive:#A9BE78; --olive-soft:#323B1F;
-  --gold:#EDB551; --gold-soft:#41331A; --danger:#FF8A80; --danger-soft:#4A2421; --blue:#8DB8E3; --blue-soft:#22364A; color-scheme:dark}
-
-*{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;padding-inline:16px;padding-block:0 48px;min-height:100%}
-h1,h2,h3,h4{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
-button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
-:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:8px}
-.wrap{max-width:1180px;margin:0 auto}
-.num{font-variant-numeric:tabular-nums}
-header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);margin-inline:-16px;padding:10px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px}
-.brand{display:flex;align-items:center;gap:10px;min-width:0}
-.brand .lg{width:34px;height:34px;border-radius:50%;background:var(--terra);color:var(--terra-ink);display:grid;place-items:center;font-family:var(--display);font-weight:800;flex:none}
-.brand b{font-family:var(--display);font-size:17px;display:block;line-height:1.1}
-.brand small{color:var(--muted);font-size:12px}
-.badge-admin{background:var(--ink);color:var(--bg);border-radius:6px;font-size:11px;font-weight:800;padding:2px 7px;letter-spacing:.06em;text-transform:uppercase;margin-left:6px;vertical-align:2px}
-.themebtn{width:36px;height:36px;border-radius:50%;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;font-size:16px;flex:none}
-.tabs{display:flex;gap:4px;overflow-x:auto;padding-block:12px;scrollbar-width:none}
-.tabs button{flex:none;padding:10px 16px;border-radius:999px;font-weight:700;color:var(--muted);display:flex;gap:8px;align-items:center}
-.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
-.cnt{background:var(--terra);color:var(--terra-ink);border-radius:999px;font-size:11px;font-weight:800;padding:1px 7px}
-.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.tile{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;min-width:0}
-.tile small{color:var(--muted);font-weight:600;display:block}
-.tile b{font-family:var(--display);font-size:26px;line-height:1.15;display:block;overflow-wrap:anywhere}
-.tile span{color:var(--muted);font-size:12.5px}
-h2.sec{font-size:20px;margin-block:22px 10px}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-bottom:10px;min-width:0}
-.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
-.p-ok{background:var(--olive-soft);color:var(--olive)}
-.p-wait{background:var(--gold-soft);color:var(--gold)}
-.p-bad{background:var(--danger-soft);color:var(--danger)}
-.p-info{background:var(--blue-soft);color:var(--blue)}
-.p-off{background:var(--surface2);color:var(--muted)}
-.meta{color:var(--muted);font-size:13.5px}
-.row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-.row>div{min-width:0}
-.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
-.btn{display:inline-flex;align-items:center;justify-content:center;background:var(--terra);color:var(--terra-ink);font-weight:700;border-radius:12px;padding:9px 14px;font-size:14px}
-.btn.sec{background:var(--surface2);color:var(--ink)}
-.btn.ghost{border:1.5px solid var(--line)}
-.btn.ok{background:var(--olive);color:#fff}
-.btn.danger{background:var(--danger);color:#fff}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.danger,:root:not([data-theme="light"]) .btn.ok{color:#1B130D}}
-:root[data-theme="dark"] .btn.danger,:root[data-theme="dark"] .btn.ok{color:#1B130D}
-.chips{display:flex;gap:8px;overflow-x:auto;padding-block:4px 12px;scrollbar-width:none}
-.chip{flex:none;padding:8px 14px;border-radius:999px;background:var(--surface);border:1.5px solid var(--line);font-weight:600;font-size:14px}
-.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.search{display:flex;gap:10px;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:0 14px;margin-bottom:12px}
-.search input{border:0;background:none;width:100%;padding:12px 0;outline:none;font:inherit;color:inherit}
-.search:focus-within{border-color:var(--terra)}
-  <!doctype html>
-<html lang="pt">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="robots" content="noindex">
-<style>:root{color-scheme:light;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}.osp-bar{padding:8px 16px;font:600 13px system-ui,sans-serif}.osp-bar a{color:inherit;opacity:.7;text-decoration:none}</style>
-<title>O Seu Prato Administração</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
-<style>
-/* Layout: consola de administração. Cabeçalho com marca e selo Admin, separadores com contadores de pendentes. Listas em cartões no telemóvel, tabelas com scroll próprio para dados financeiros. */
-:root{
-  --bg:#F5ECDF; --surface:#FFFAF2; --surface2:#EFE0CA; --ink:#2A1D14; --muted:#766252;
-  --line:#E2CFB4; --terra:#C0502D; --terra-ink:#FFFFFF; --olive:#566A33; --olive-soft:#E3E8CF;
-  --gold:#B97A12; --gold-soft:#F8E8C4; --danger:#B3261E; --danger-soft:#F9DDD9; --blue:#2F5F8A; --blue-soft:#DCE8F3;
-  --display:'Bricolage Grotesque','Trebuchet MS',system-ui,sans-serif;
-  --body:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+function rest(){
+  const nk=S.newKey?`<div class="panel" style="border-color:var(--olive)"><h3 style="font-size:17px">Restaurante aprovado: ${esc(S.newKey.name)}</h3><p class="meta">Esta é a chave de acesso do restaurante. <b>Só aparece agora</b>: copie-a e envie-a ao restaurante por um canal seguro.</p><textarea class="csv" id="keybox" readonly>${esc(S.newKey.key)}</textarea><div class="acts"><button class="btn" data-a="closekey">Já copiei</button></div></div>`:'';
+  const F=[['todos','Todos'],['ativo','Ativos'],['pendente','Por aprovar'],['suspenso','Suspensos']];
+  const l=RS.filter(r=>S.rf==='todos'||r.st===S.rf);
+  return nk+`<div class="chips">${F.map(([k,t])=>`<button class="chip" data-a="rf" data-v="${k}" aria-pressed="${S.rf===k}">${t}</button>`).join('')}</div>
+  <div class="grid">${l.map(r=>{const [pl,pc]=rstPill[r.st];return `<div class="panel"><div class="row"><div><h3 style="font-size:18px">${r.name}</h3><div class="meta">${r.cuisine} · ${r.city}</div></div><span class="pill ${pc}">${pl}</span></div>
+  ${r.st==='pendente'?`<div class="meta" style="margin-top:8px">${ON?'Pedido de adesão recebido. Contacto: '+esc(r.contact||'—')+'. Confirme a licença e a morada antes de aprovar.':'Pedido de adesão com documentação enviada. Confirme a licença e a morada antes de aprovar.'}</div>`:`<div class="meta num" style="margin-top:8px">${r.res} reservas · ${eur(r.gmv,0)} · ${r.rating?'★ '+r.rating.toFixed(1):'sem avaliações'}</div>`}
+  ${r.why?`<div class="meta" style="margin-top:6px;color:var(--danger)">${r.why}</div>`:''}
+  <div class="acts">${r.st==='pendente'?`<button class="btn ok" data-a="approve" data-v="${r.id}">Aprovar</button>${confirmBtn('rj'+r.id,'Recusar','reject',r.id)}`:
+   r.st==='ativo'?`<label class="lbl" style="flex-direction:row;align-items:center;gap:8px">Comissão <input type="number" min="0" max="30" step="0.5" value="${r.rate}" data-rate="${r.id}" aria-label="Comissão de ${esc(r.name)}"> %</label>${confirmBtn('sp'+r.id,'Suspender','suspend',r.id)}`:
+   `<button class="btn" data-a="reactivate" data-v="${r.id}">Reativar</button>`}</div></div>`}).join('')}</div>`;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#1B130D; --surface:#261A12; --surface2:#33241A; --ink:#F6E9D8; --muted:#B49C86;
-  --line:#41301F; --terra:#E0714B; --terra-ink:#1B130D; --olive:#A9BE78; --olive-soft:#323B1F;
-  --gold:#EDB551; --gold-soft:#41331A; --danger:#FF8A80; --danger-soft:#4A2421; --blue:#8DB8E3; --blue-soft:#22364A; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#1B130D; --surface:#261A12; --surface2:#33241A; --ink:#F6E9D8; --muted:#B49C86;
-  --line:#41301F; --terra:#E0714B; --terra-ink:#1B130D; --olive:#A9BE78; --olive-soft:#323B1F;
-  --gold:#EDB551; --gold-soft:#41331A; --danger:#FF8A80; --danger-soft:#4A2421; --blue:#8DB8E3; --blue-soft:#22364A; color-scheme:dark}
-
-*{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;padding-inline:16px;padding-block:0 48px;min-height:100%}
-h1,h2,h3,h4{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
-button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
-:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:8px}
-.wrap{max-width:1180px;margin:0 auto}
-.num{font-variant-numeric:tabular-nums}
-header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);margin-inline:-16px;padding:10px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px}
-.brand{display:flex;align-items:center;gap:10px;min-width:0}
-.brand .lg{width:34px;height:34px;border-radius:50%;background:var(--terra);color:var(--terra-ink);display:grid;place-items:center;font-family:var(--display);font-weight:800;flex:none}
-.brand b{font-family:var(--display);font-size:17px;display:block;line-height:1.1}
-.brand small{color:var(--muted);font-size:12px}
-.badge-admin{background:var(--ink);color:var(--bg);border-radius:6px;font-size:11px;font-weight:800;padding:2px 7px;letter-spacing:.06em;text-transform:uppercase;margin-left:6px;vertical-align:2px}
-.themebtn{width:36px;height:36px;border-radius:50%;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;font-size:16px;flex:none}
-.tabs{display:flex;gap:4px;overflow-x:auto;padding-block:12px;scrollbar-width:none}
-.tabs button{flex:none;padding:10px 16px;border-radius:999px;font-weight:700;color:var(--muted);display:flex;gap:8px;align-items:center}
-.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
-.cnt{background:var(--terra);color:var(--terra-ink);border-radius:999px;font-size:11px;font-weight:800;padding:1px 7px}
-.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.tile{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;min-width:0}
-.tile small{color:var(--muted);font-weight:600;display:block}
-.tile b{font-family:var(--display);font-size:26px;line-height:1.15;display:block;overflow-wrap:anywhere}
-.tile span{color:var(--muted);font-size:12.5px}
-h2.sec{font-size:20px;margin-block:22px 10px}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-bottom:10px;min-width:0}
-.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
-.p-ok{background:var(--olive-soft);color:var(--olive)}
-.p-wait{background:var(--gold-soft);color:var(--gold)}
-.p-bad{background:var(--danger-soft);color:var(--danger)}
-.p-info{background:var(--blue-soft);color:var(--blue)}
-.p-off{background:var(--surface2);color:var(--muted)}
-.meta{color:var(--muted);font-size:13.5px}
-.row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-.row>div{min-width:0}
-.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
-.btn{display:inline-flex;align-items:center;justify-content:center;background:var(--terra);color:var(--terra-ink);font-weight:700;border-radius:12px;padding:9px 14px;font-size:14px}
-.btn.sec{background:var(--surface2);color:var(--ink)}
-.btn.ghost{border:1.5px solid var(--line)}
-.btn.ok{background:var(--olive);color:#fff}
-.btn.danger{background:var(--danger);color:#fff}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.danger,:root:not([data-theme="light"]) .btn.ok{color:#1B130D}}
-:root[data-theme="dark"] .btn.danger,:root[data-theme="dark"] .btn.ok{color:#1B130D}
-.chips{display:flex;gap:8px;overflow-x:auto;padding-block:4px 12px;scrollbar-width:none}
-.chip{flex:none;padding:8px 14px;border-radius:999px;background:var(--surface);border:1.5px solid var(--line);font-weight:600;font-size:14px}
-.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.search{display:flex;gap:10px;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:0 14px;margin-bottom:12px}
-.search input{border:0;background:none;width:100%;padding:12px 0;outline:none;font:inherit;color:inherit}
-.search:focus-within{border-color:var(--terra)}
-  input[type=number]{font:inherit;color:inherit;background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:7px 8px;width:76px}
-.lbl{display:flex;flex-direction:column;gap:4px;font-size:12.5px;font-weight:700;color:var(--muted)}
-.grid{display:grid;gap:10px;grid-template-columns:1fr}
-.tbl{overflow-x:auto}
-.tbl table{border-collapse:collapse;width:100%;font-size:14px}
-.tbl th,.tbl td{text-align:right;padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
-.tbl th:first-child,.tbl td:first-child{text-align:left}
-.tbl th{color:var(--muted);font-weight:700;font-size:12.5px}
-.tbl tr:last-child td{border-bottom:0}
-.tbl tfoot td{font-weight:800}
-.bars{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;align-items:end;height:200px;padding-top:22px}
-.bars div{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;gap:4px;min-width:0}
-.bars i{display:block;width:100%;max-width:46px;border-radius:8px 8px 3px 3px;background:var(--surface2)}
-.bars div.last i{background:var(--terra)}
-.bars small{font-size:11.5px;color:var(--muted);font-weight:600}
-.bars b{font-size:11px}
-.hb{display:grid;grid-template-columns:minmax(80px,140px) 1fr auto;gap:10px;align-items:center;margin-block:8px;font-size:14px}
-.hb span.tr{height:10px;background:var(--surface2);border-radius:6px;overflow:hidden}
-.hb span.tr i{display:block;height:100%;background:var(--olive);border-radius:6px}
-.empty{text-align:center;color:var(--muted);padding:28px 12px}
-.todo{display:flex;gap:10px;align-items:center;justify-content:space-between;padding-block:8px;border-bottom:1px solid var(--line)}
-.todo:last-child{border:0}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(24px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;z-index:50;max-width:90%}
-.csv{width:100%;min-height:120px;font:12.5px/1.4 ui-monospace,Menlo,Consolas,monospace;background:var(--bg);color:var(--ink);border:1.5px solid var(--line);border-radius:10px;padding:10px;margin-top:10px}
-@media (min-width:640px){.tiles{grid-template-columns:repeat(4,1fr)}.grid{grid-template-columns:repeat(2,1fr)}}
-@media (min-width:900px){.two{display:grid;grid-template-columns:1.4fr 1fr;gap:20px;align-items:start}.grid.g3{grid-template-columns:repeat(3,1fr)}}
-</style>
-</head>
-<body>
-<div class="osp-bar"><a href="./">&larr; Todas as áreas</a></div>
-
-<div class="wrap" id="app"></div>
-<div id="toast" class="toast" hidden></div>
-
-<script src="api.js"></script>
-<script src="admin-1.js"></script>
-<script src="admin-2.js"></script>
-<script src="admin-3.js"></script>
-<script src="admin-4.js"></script>
-<script src="admin-5.js"></script>
-<script src="admin-7.js"></script>
-<script src="admin-8.js"></script>
-<script src="admin-6.js"></script>
-</body>
-</html>
+function cli(){
+  const q=S.q.trim().toLowerCase();
+  const l=CL.filter(c=>!q||(c.name+c.city).toLowerCase().includes(q));
+  const pre=ON&&PRE.length?`<h2 class="sec">Pré-registos (${PRE.length})</h2><div class="panel tbl"><table><thead><tr><th>Nome</th><th>Email</th><th>Telemóvel</th><th>Restaurante</th></tr></thead><tbody>${PRE.map(p=>`<tr><td>${esc(p.nome)}</td><td>${esc(p.email)}</td><td>${esc(p.telemovel||'')}</td><td>${esc(p.restaurante||'')}</td></tr>`).join('')}</tbody></table></div><h2 class="sec">Contas</h2>`:'';
+  return pre+`<label class="search"><input id="q" type="search" placeholder="Procurar cliente ou cidade" value="${esc(S.q)}" autocomplete="off"></label><div id="cl">${cliList(l)}</div>`;
+}
+function cliList(l){
+  return l.length?`<div class="grid">${l.map(c=>`<div class="panel"><div class="row"><div><h3 style="font-size:17px">${esc(c.name)}</h3><div class="meta">${c.mail} · ${c.city} · desde ${c.since}</div></div><span class="pill ${c.st==='ativo'?'p-ok':'p-bad'}">${c.st==='ativo'?'Ativo':'Bloqueado'}</span></div>
+  <div class="meta num" style="margin-top:8px">${c.res} reservas · ${eur(c.spent,0)} gastos · ${c.pts} pontos</div>
+  ${c.noshow>=3?`<div class="meta" style="color:var(--danger);margin-top:4px">${c.noshow} faltas sem aviso. Considere limitar reservas.</div>`:c.noshow?`<div class="meta" style="margin-top:4px">${c.noshow} falta sem aviso</div>`:''}
+  <div class="acts">${c.st==='ativo'?confirmBtn('bl'+c.id,'Bloquear conta','block',c.id):`<button class="btn" data-a="unblock" data-v="${c.id}">Desbloquear</button>`}</div></div>`).join('')}</div>`:'<div class="empty">Nenhum cliente encontrado.</div>';
+}function res(){
+  const F=[['todas','Todas'],['confirmada','Confirmadas'],['concluida','Concluídas'],['problema','Com problema']];
+  const l=RES.filter(r=>S.rsf==='todas'||(S.rsf==='problema'?['naoveio','pendente'].includes(r.st)||r.ps==='falhado':r.st===S.rsf));
+  return `<div class="chips">${F.map(([k,t])=>`<button class="chip" data-a="rsf" data-v="${k}" aria-pressed="${S.rsf===k}">${t}</button>`).join('')}</div>
+  <div class="grid">${l.map(r=>{const [pl,pc]=resPill[r.st];const [ql,qc]=payPill[r.ps];return `<div class="panel"><div class="row"><div><b>${rn(r.r)}</b><div class="meta">${esc(r.cl)} · ${r.n} pess. · ${r.when}</div></div><span class="pill ${pc}">${pl}</span></div>
+  <div class="row" style="margin-top:8px;align-items:center"><span class="meta num">${r.c} · ${eur(r.tot)}</span><span class="pill ${qc}">${ql}</span></div>
+  ${r.noacc?`<div class="meta" style="color:var(--danger);margin-top:6px">Restaurante ainda sem aprovação: reserva bloqueada.</div>`:''}
+  ${r.st==='confirmada'?`<div class="acts">${confirmBtn('cx'+r.c,'Cancelar e reembolsar','refund',r.c)}</div>`:''}</div>`}).join('')}</div>`;
+}
+function pag(){
+  const F=[['todos','Todos'],['pago','Pagos'],['falhado','Falhados'],['reembolsado','Reembolsados']];
+  const l=RES.filter(r=>S.pf==='todos'||r.ps===S.pf);
+  const sum=k=>RES.filter(r=>r.ps===k).reduce((a,r)=>a+r.tot,0);
+  return `<div class="tiles"><div class="tile"><small>Recebido</small><b class="num">${eur(sum('pago'))}</b><span>${RES.filter(r=>r.ps==='pago').length} pagamentos</span></div>
+  <div class="tile"><small>Falhados</small><b class="num">${eur(sum('falhado'))}</b><span>${RES.filter(r=>r.ps==='falhado').length} por resolver</span></div>
+  <div class="tile"><small>Reembolsado</small><b class="num">${eur(sum('reembolsado'))}</b><span>${RES.filter(r=>r.ps==='reembolsado').length} reservas</span></div>
+  <div class="tile"><small>Método mais usado</small><b>${ON?topMethod():'MB WAY'}</b><span>${ON?'nas reservas':'4 de 10 pagamentos'}</span></div></div>
+  <div class="chips" style="margin-top:14px">${F.map(([k,t])=>`<button class="chip" data-a="pf" data-v="${k}" aria-pressed="${S.pf===k}">${t}</button>`).join('')}</div>
+  <div class="panel tbl"><table><thead><tr><th>Código</th><th>Cliente</th><th>Método</th><th>Valor</th><th>Estado</th><th></th></tr></thead><tbody>
+  ${l.map(r=>`<tr><td class="num">${r.c}</td><td>${esc(r.cl)}</td><td>${r.m}</td><td class="num">${eur(r.tot)}</td><td><span class="pill ${payPill[r.ps][1]}">${payPill[r.ps][0]}</span></td><td>${r.ps==='falhado'&&!r.noacc?`<button class="btn sec" data-a="retry" data-v="${r.c}">Reenviar pedido</button>`:r.ps==='falhado'?'<span class="meta">Reserva bloqueada</span>':''}</td></tr>`).join('')}</tbody></table></div>`;
+}
+function com(){
+  const rows=act();const g=gmv(),c=commTot();
+  const due=rows.filter(r=>!r.paid).reduce((a,r)=>a+dueOf(r),0);
+  return `<div class="tiles"><div class="tile"><small>Comissões do mês</small><b class="num">${eur(c,0)}</b><span>receita da plataforma</span></div>
+  <div class="tile"><small>Taxa média</small><b class="num">${(g?c/g*100:0).toFixed(1).replace('.',',')}%</b><span>sobre ${eur(g,0)}</span></div>
+  <div class="tile"><small>A pagar aos restaurantes</small><b class="num">${eur(due,0)}</b><span>${rows.filter(r=>!r.paid).length} por liquidar</span></div>
+  <div class="tile"><small>Já liquidado</small><b class="num">${eur(ON?rows.reduce((a,r)=>a+r.paidOut,0):rows.filter(r=>r.paid).reduce((a,r)=>a+dueOf(r),0),0)}</b><span>${ON?'pago aos restaurantes':rows.filter(r=>r.paid).length+' restaurantes'}</span></div></div>
+  <h2 class="sec">Por restaurante</h2><div class="panel tbl"><table><thead><tr><th>Restaurante</th><th>Vendas</th><th>Taxa</th><th>Comissão</th><th>A pagar</th><th>Estado</th></tr></thead><tbody>
+  ${rows.map(r=>`<tr><td>${r.name}${r.risk?' <span class="pill p-bad" title="Muitas faltas ou disputas perdidas">Atenção: faltas</span>':''}${r.held?'<div class="meta">Retido: '+eur(r.held)+'</div>':''}</td><td class="num">${eur(r.gmv,0)}</td><td class="num">${r.rate}%</td><td class="num">${eur(comm(r))}</td><td class="num"><b>${eur(dueOf(r))}</b></td><td>${r.paid?'<span class="pill p-ok">Pago</span>':`<button class="btn ok" data-a="settle" data-v="${r.id}">Marcar pago</button>`}</td></tr>`).join('')}</tbody>
+  <tfoot><tr><td>Total</td><td class="num">${eur(g,0)}</td><td></td><td class="num">${eur(c)}</td><td class="num">${eur(g-c)}</td><td></td></tr></tfoot></table></div>
+  <p class="meta">A taxa de cada restaurante altera-se no separador Restaurantes. Os valores aqui atualizam logo.</p>`;
+}
