@@ -1,120 +1,39 @@
-<!doctype html>
-<html lang="pt">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="robots" content="noindex">
-<style>:root{color-scheme:light;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}.osp-bar{padding:8px 16px;font:600 13px system-ui,sans-serif}.osp-bar a{color:inherit;opacity:.7;text-decoration:none}</style>
-<title>O Seu Prato Administração</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
-<style>
-/* Layout: consola de administração. Cabeçalho com marca e selo Admin, separadores com contadores de pendentes. Listas em cartões no telemóvel, tabelas com scroll próprio para dados financeiros. */
-:root{
-  --bg:#F5ECDF; --surface:#FFFAF2; --surface2:#EFE0CA; --ink:#2A1D14; --muted:#766252;
-  --line:#E2CFB4; --terra:#C0502D; --terra-ink:#FFFFFF; --olive:#566A33; --olive-soft:#E3E8CF;
-  --gold:#B97A12; --gold-soft:#F8E8C4; --danger:#B3261E; --danger-soft:#F9DDD9; --blue:#2F5F8A; --blue-soft:#DCE8F3;
-  --display:'Bricolage Grotesque','Trebuchet MS',system-ui,sans-serif;
-  --body:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+const rn=id=>(RS.find(r=>r.id===id)||{name:id}).name;
+const S={key:OSP.store.get('osp_akey'),loading:ON&&!!OSP.store.get('osp_akey'),err:'',newKey:null,sum:null,tab:'geral',q:'',rf:'todos',rsf:'todas',pf:'todos',ask:null,csv:''};
+const tabsDef=()=>[['geral','Visão geral'],['rest','Restaurantes',RS.filter(r=>r.st==='pendente').length],['cli','Clientes'],['res','Reservas'],['disp','Disputas',DISP.length],['pag','Pagamentos',RES.filter(r=>r.ps==='falhado').length],['com','Comissões'],['menus','Menus'],['apoio','Apoio',APOIO.filter(t=>t.status!=='resolvido').length],['rel','Relatórios']];
+function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2400)}
+const act=()=>RS.filter(r=>r.st==='ativo'||r.st==='suspenso');
+const gmv=()=>act().reduce((a,r)=>a+r.gmv,0);
+const comm=r=>ON?r.comm:r.gmv*r.rate/100;
+const dueOf=r=>ON?r.due:dueOf(r);
+const commTot=()=>act().reduce((a,r)=>a+comm(r),0);
+const rstPill={ativo:['Ativo','p-ok'],suspenso:['Suspenso','p-bad'],pendente:['Por aprovar','p-wait']};
+const resPill={confirmada:['Confirmada','p-info'],concluida:['Concluída','p-ok'],cancelada:['Cancelada','p-off'],naoveio:['Não veio','p-bad'],pendente:['Sem pagamento','p-wait'],reembolsada:['Reembolsada','p-off']};
+const payPill={pago:['Pago','p-ok'],falhado:['Falhado','p-bad'],reembolsado:['Reembolsado','p-off'],pendente:['Pendente','p-wait']};
+function confirmBtn(key,label,act,id,cls){
+  if(S.ask===key)return `<button class="btn danger" data-a="${act}" data-v="${id}">Confirmar</button><button class="btn ghost" data-a="noask">Cancelar</button>`;
+  return `<button class="btn ${cls||'ghost'}" data-a="ask" data-v="${key}">${label}</button>`;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#1B130D; --surface:#261A12; --surface2:#33241A; --ink:#F6E9D8; --muted:#B49C86;
-  --line:#41301F; --terra:#E0714B; --terra-ink:#1B130D; --olive:#A9BE78; --olive-soft:#323B1F;
-  --gold:#EDB551; --gold-soft:#41331A; --danger:#FF8A80; --danger-soft:#4A2421; --blue:#8DB8E3; --blue-soft:#22364A; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#1B130D; --surface:#261A12; --surface2:#33241A; --ink:#F6E9D8; --muted:#B49C86;
-  --line:#41301F; --terra:#E0714B; --terra-ink:#1B130D; --olive:#A9BE78; --olive-soft:#323B1F;
-  --gold:#EDB551; --gold-soft:#41331A; --danger:#FF8A80; --danger-soft:#4A2421; --blue:#8DB8E3; --blue-soft:#22364A; color-scheme:dark}
 
-*{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;padding-inline:16px;padding-block:0 48px;min-height:100%}
-h1,h2,h3,h4{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
-button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
-:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:8px}
-.wrap{max-width:1180px;margin:0 auto}
-.num{font-variant-numeric:tabular-nums}
-header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);margin-inline:-16px;padding:10px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px}
-.brand{display:flex;align-items:center;gap:10px;min-width:0}
-.brand .lg{width:34px;height:34px;border-radius:50%;background:var(--terra);color:var(--terra-ink);display:grid;place-items:center;font-family:var(--display);font-weight:800;flex:none}
-.brand b{font-family:var(--display);font-size:17px;display:block;line-height:1.1}
-.brand small{color:var(--muted);font-size:12px}
-.badge-admin{background:var(--ink);color:var(--bg);border-radius:6px;font-size:11px;font-weight:800;padding:2px 7px;letter-spacing:.06em;text-transform:uppercase;margin-left:6px;vertical-align:2px}
-.themebtn{width:36px;height:36px;border-radius:50%;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;font-size:16px;flex:none}
-.tabs{display:flex;gap:4px;overflow-x:auto;padding-block:12px;scrollbar-width:none}
-.tabs button{flex:none;padding:10px 16px;border-radius:999px;font-weight:700;color:var(--muted);display:flex;gap:8px;align-items:center}
-.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
-.cnt{background:var(--terra);color:var(--terra-ink);border-radius:999px;font-size:11px;font-weight:800;padding:1px 7px}
-.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.tile{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;min-width:0}
-.tile small{color:var(--muted);font-weight:600;display:block}
-.tile b{font-family:var(--display);font-size:26px;line-height:1.15;display:block;overflow-wrap:anywhere}
-.tile span{color:var(--muted);font-size:12.5px}
-h2.sec{font-size:20px;margin-block:22px 10px}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-bottom:10px;min-width:0}
-.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
-.p-ok{background:var(--olive-soft);color:var(--olive)}
-.p-wait{background:var(--gold-soft);color:var(--gold)}
-.p-bad{background:var(--danger-soft);color:var(--danger)}
-.p-info{background:var(--blue-soft);color:var(--blue)}
-.p-off{background:var(--surface2);color:var(--muted)}
-.meta{color:var(--muted);font-size:13.5px}
-.row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-.row>div{min-width:0}
-.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
-.btn{display:inline-flex;align-items:center;justify-content:center;background:var(--terra);color:var(--terra-ink);font-weight:700;border-radius:12px;padding:9px 14px;font-size:14px}
-.btn.sec{background:var(--surface2);color:var(--ink)}
-.btn.ghost{border:1.5px solid var(--line)}
-.btn.ok{background:var(--olive);color:#fff}
-.btn.danger{background:var(--danger);color:#fff}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.danger,:root:not([data-theme="light"]) .btn.ok{color:#1B130D}}
-:root[data-theme="dark"] .btn.danger,:root[data-theme="dark"] .btn.ok{color:#1B130D}
-.chips{display:flex;gap:8px;overflow-x:auto;padding-block:4px 12px;scrollbar-width:none}
-.chip{flex:none;padding:8px 14px;border-radius:999px;background:var(--surface);border:1.5px solid var(--line);font-weight:600;font-size:14px}
-.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.search{display:flex;gap:10px;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:0 14px;margin-bottom:12px}
-.search input{border:0;background:none;width:100%;padding:12px 0;outline:none;font:inherit;color:inherit}
-.search:focus-within{border-color:var(--terra)}
-input[type=number]{font:inherit;color:inherit;background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:7px 8px;width:76px}
-.lbl{display:flex;flex-direction:column;gap:4px;font-size:12.5px;font-weight:700;color:var(--muted)}
-.grid{display:grid;gap:10px;grid-template-columns:1fr}
-.tbl{overflow-x:auto}
-.tbl table{border-collapse:collapse;width:100%;font-size:14px}
-.tbl th,.tbl td{text-align:right;padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
-.tbl th:first-child,.tbl td:first-child{text-align:left}
-.tbl th{color:var(--muted);font-weight:700;font-size:12.5px}
-.tbl tr:last-child td{border-bottom:0}
-.tbl tfoot td{font-weight:800}
-.bars{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;align-items:end;height:200px;padding-top:22px}
-.bars div{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;gap:4px;min-width:0}
-.bars i{display:block;width:100%;max-width:46px;border-radius:8px 8px 3px 3px;background:var(--surface2)}
-.bars div.last i{background:var(--terra)}
-.bars small{font-size:11.5px;color:var(--muted);font-weight:600}
-.bars b{font-size:11px}
-.hb{display:grid;grid-template-columns:minmax(80px,140px) 1fr auto;gap:10px;align-items:center;margin-block:8px;font-size:14px}
-.hb span.tr{height:10px;background:var(--surface2);border-radius:6px;overflow:hidden}
-.hb span.tr i{display:block;height:100%;background:var(--olive);border-radius:6px}
-.empty{text-align:center;color:var(--muted);padding:28px 12px}
-.todo{display:flex;gap:10px;align-items:center;justify-content:space-between;padding-block:8px;border-bottom:1px solid var(--line)}
-.todo:last-child{border:0}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(24px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;z-index:50;max-width:90%}
-.csv{width:100%;min-height:120px;font:12.5px/1.4 ui-monospace,Menlo,Consolas,monospace;background:var(--bg);color:var(--ink);border:1.5px solid var(--line);border-radius:10px;padding:10px;margin-top:10px}
-@media (min-width:640px){.tiles{grid-template-columns:repeat(4,1fr)}.grid{grid-template-columns:repeat(2,1fr)}}
-@media (min-width:900px){.two{display:grid;grid-template-columns:1.4fr 1fr;gap:20px;align-items:start}.grid.g3{grid-template-columns:repeat(3,1fr)}}
-</style>
-</head>
-<body>
-<div class="osp-bar"><a href="./">&larr; Todas as áreas</a></div>
+function header(){
+  return `<header class="top"><div class="brand"><div class="lg">O</div><div><b>O Seu Prato<span class="badge-admin">Admin</span></b><small>Administração da plataforma</small></div></div><span style="display:flex;gap:8px;align-items:center">${ON?'<button class="btn ghost" data-a="logout">Sair</button>':''}<button class="themebtn" data-a="theme" aria-label="Alternar tema">◐</button></span></header>
+  <nav class="tabs" role="tablist">${tabsDef().map(([k,l,c])=>`<button role="tab" data-a="tab" data-v="${k}" aria-selected="${S.tab===k}">${l}${c?`<span class="cnt">${c}</span>`:''}</button>`).join('')}</nav>`;
+}
 
-<div class="wrap" id="app"></div>
-<div id="toast" class="toast" hidden></div>
-
-<script src="api.js"></script>
-<script src="admin-1.js"></script>
-<script src="admin-2.js"></script>
-<script src="admin-3.js"></script>
-<script src="admin-4.js"></script>
-<script src="admin-5.js"></script>
-<script src="admin-7.js"></script>
-<script src="admin-8.js"></script>
-<script src="admin-6.js"></script>
-</body>
-</html>
+function geral(){
+  const pend=RS.filter(r=>r.st==='pendente');
+  const failed=RES.filter(r=>r.ps==='falhado');
+  const noshow=RES.filter(r=>r.st==='naoveio');
+  const max=Math.max(1,...WEEKS.map(w=>w[1]));
+  const top=[...act()].sort((a,b)=>b.gmv-a.gmv).slice(0,5);const tm=top[0]?Math.max(1,top[0].gmv):1;
+  const todo=[
+   ...pend.map(r=>`<div class="todo"><span><b>${r.name}</b><br><span class="meta">${r.city} · quer entrar na plataforma</span></span><button class="btn" data-a="go" data-v="rest">Rever</button></div>`),
+   ...failed.map(r=>`<div class="todo"><span><b>Pagamento falhado</b><br><span class="meta">${r.c} · ${esc(r.cl)} · ${eur(r.tot)}</span></span><button class="btn sec" data-a="go" data-v="pag">Ver</button></div>`),
+   ...noshow.map(r=>`<div class="todo"><span><b>Não compareceu</b><br><span class="meta">${esc(r.cl)} · ${rn(r.r)}</span></span><button class="btn sec" data-a="go" data-v="cli">Ver cliente</button></div>`)
+  ];
+  return `<div class="tiles"><div class="tile"><small>Vendas do mês (GMV)</small><b class="num">${eur(gmv(),0)}</b><span>pré-pagas na plataforma</span></div>
+  <div class="tile"><small>Receita em comissões</small><b class="num">${eur(commTot(),0)}</b><span class="num">${(gmv()?commTot()/gmv()*100:0).toFixed(1).replace('.',',')}% das vendas</span></div>
+  <div class="tile"><small>Reservas no mês</small><b class="num">${act().reduce((a,r)=>a+r.res,0).toLocaleString('pt-PT')}</b><span>${act().length} restaurantes</span></div>
+  <div class="tile"><small>Clientes ativos</small><b class="num">${CL.filter(c=>c.st==='ativo').length}</b><span>${ON?(S.sum?S.sum.preRegistrations+' pré-registos':''):CL.length+' registados (amostra)'}</span></div></div>
+  <div class="two"><div><h2 class="sec">Vendas por semana</h2><div class="panel"><div class="bars" role="img" aria-label="Vendas semanais, em milhares de euros">${WEEKS.map(([w,v],i)=>`<div class="${i===WEEKS.length-1?'last':''}"><b class="num">${(v/1000).toFixed(1).replace('.',',')}k</b><i style="height:${v/max*100}%"></i><small>${w}</small></div>`).join('')}</div></div>
+  <h2 class="sec">Restaurantes com mais vendas</h2>
