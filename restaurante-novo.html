@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<style>:root{color-scheme:light;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}.osp-bar{padding:8px 16px;font:600 13px system-ui,sans-serif}.osp-bar a{color:inherit;opacity:.7;text-decoration:none}</style>
+<title>O Seu Prato Restaurante</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: painel operacional. Cabeçalho com relógio do serviço, separadores Hoje/Reservas/Cozinha/Mesas. Cozinha em 3 colunas no ecrã largo, empilhada no telemóvel. */
+:root{
+  --bg:#F7EEE0; --surface:#FFFAF2; --surface2:#F1E3CE; --ink:#2E1F15; --muted:#7A6555;
+  --line:#E3D0B6; --terra:#C0502D; --terra-ink:#FFFFFF; --olive:#566A33; --olive-soft:#E3E8CF;
+  --gold:#B97A12; --gold-soft:#F8E8C4; --danger:#B3261E; --danger-soft:#F9DDD9; --blue:#2F5F8A; --blue-soft:#DCE8F3;
+  --display:'Bricolage Grotesque','Trebuchet MS',system-ui,sans-serif;
+  --body:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#1B130D; --surface:#261A12; --surface2:#33241A; --ink:#F6E9D8; --muted:#B49C86;
+  --line:#41301F; --terra:#E0714B; --terra-ink:#1B130D; --olive:#A9BE78; --olive-soft:#323B1F;
+  --gold:#EDB551; --gold-soft:#41331A; --danger:#FF8A80; --danger-soft:#4A2421; --blue:#8DB8E3; --blue-soft:#22364A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1B130D; --surface:#261A12; --surface2:#33241A; --ink:#F6E9D8; --muted:#B49C86;
+  --line:#41301F; --terra:#E0714B; --terra-ink:#1B130D; --olive:#A9BE78; --olive-soft:#323B1F;
+  --gold:#EDB551; --gold-soft:#41331A; --danger:#FF8A80; --danger-soft:#4A2421; --blue:#8DB8E3; --blue-soft:#22364A; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;padding-inline:16px;padding-block:0 40px;min-height:100%}
+h1,h2,h3,h4{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:8px}
+.wrap{max-width:1180px;margin:0 auto}
+.num{font-variant-numeric:tabular-nums}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);margin-inline:-16px;padding:10px 16px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand .lg{width:34px;height:34px;border-radius:50%;background:var(--terra);color:var(--terra-ink);display:grid;place-items:center;font-family:var(--display);font-weight:800;flex:none}
+.brand b{font-family:var(--display);font-size:17px;display:block;line-height:1.1}
+.brand small{color:var(--muted);font-size:12px}
+.clock{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 4px 4px 14px;font-weight:700}
+.clock button{background:var(--surface2);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700}
+.tabs{display:flex;gap:4px;overflow-x:auto;padding-block:12px;scrollbar-width:none}
+.tabs button{flex:none;padding:10px 16px;border-radius:999px;font-weight:700;color:var(--muted);display:flex;gap:8px;align-items:center}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+.cnt{background:var(--terra);color:var(--terra-ink);border-radius:999px;font-size:11px;font-weight:800;padding:1px 7px}
+
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px}
+.tile small{color:var(--muted);font-weight:600;display:block}
+.tile b{font-family:var(--display);font-size:28px;line-height:1.1}
+.tile span{color:var(--muted);font-size:12.5px}
+h2.sec{font-size:20px;margin-block:22px 10px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-bottom:10px}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+.p-conf{background:var(--blue-soft);color:var(--blue)}
+.p-cheg{background:var(--gold-soft);color:var(--gold)}
+.p-sent{background:var(--olive-soft);color:var(--olive)}
+.p-done{background:var(--surface2);color:var(--muted)}
+.p-bad{background:var(--danger-soft);color:var(--danger)}
+.alert{background:var(--danger-soft);color:var(--danger);border-radius:10px;padding:6px 10px;font-size:13px;font-weight:600;margin-top:8px}
+.late{background:var(--gold-soft);color:var(--gold);border-radius:10px;padding:6px 10px;font-size:13px;font-weight:600;margin-top:8px}
+
+.res{display:grid;grid-template-columns:62px 1fr;gap:12px}
+.res .t{font-family:var(--display);font-weight:800;font-size:20px;line-height:1}
+.res .t small{display:block;font-family:var(--body);font-weight:600;font-size:12px;color:var(--muted);margin-top:4px}
+.res .nm{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.res .nm b{font-size:16px}
+.meta{color:var(--muted);font-size:13.5px}
+.items{font-size:13.5px;margin-top:6px}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;background:var(--terra);color:var(--terra-ink);font-weight:700;border-radius:12px;padding:10px 16px;font-size:14px}
+.btn.sec{background:var(--surface2);color:var(--ink)}
+.btn.ghost{border:1.5px solid var(--line)}
+.btn.ok{background:var(--olive);color:#fff}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-block:4px 12px;scrollbar-width:none}
+.chip{flex:none;padding:8px 14px;border-radius:999px;background:var(--surface);border:1.5px solid var(--line);font-weight:600;font-size:14px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;padding:10px;background:var(--surface2);border-radius:12px}
+.opts p{width:100%;margin:0;font-weight:700;font-size:13px}
+  .opt{padding:8px 12px;border-radius:10px;background:var(--surface);border:1.5px solid var(--line);font-weight:700}
+.opt:disabled{opacity:.4;text-decoration:line-through;cursor:not-allowed}
+.grid2{display:grid;gap:12px;grid-template-columns:1fr}
+.col{min-width:0}
+.col h3{font-size:17px;display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.kc{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:10px}
+.kc.urgent{border-color:var(--terra);box-shadow:inset 0 0 0 1px var(--terra)}
+.kc .hd{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.kc ul{margin:8px 0 0;padding-left:18px}
+.tables{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.tb{border-radius:16px;padding:12px;border:1.5px solid var(--line);background:var(--surface);min-height:104px}
+.tb h4{font-size:20px}
+.tb.occ{background:var(--olive-soft);border-color:var(--olive)}
+.tb.soon{background:var(--gold-soft);border-color:var(--gold)}
+.tb small{color:var(--muted);display:block}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-bottom:10px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:6px;vertical-align:-1px;border:1.5px solid var(--line)}
+.empty{text-align:center;color:var(--muted);padding:28px 12px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(24px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;z-index:50;max-width:90%}
+.themebtn{width:36px;height:36px;border-radius:50%;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;font-size:16px}
+.rside{display:flex;gap:8px;align-items:center}
+
+.mi{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center}
+.mi h4{font-size:16px}
+.mi .ctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;grid-column:1/-1}
+.stepper{display:inline-flex;align-items:center;background:var(--surface2);border-radius:999px}
+.stepper button{width:34px;height:34px;border-radius:50%;font-size:19px;font-weight:700}
+.stepper span{min-width:30px;text-align:center;font-weight:700}
+.sw{width:48px;height:28px;border-radius:999px;background:var(--line);position:relative;flex:none}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:left .15s}
+.sw[aria-checked="true"]{background:var(--olive)}
+.sw[aria-checked="true"]::after{left:23px}
+input[type=text],input[type=number],select,textarea{font:inherit;color:inherit;background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0}
+input[type=number]{width:92px}
+textarea{width:100%;resize:vertical;min-height:64px}
+.lbl{display:flex;flex-direction:column;gap:4px;font-size:12.5px;font-weight:700;color:var(--muted)}
+.form{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
+.stk{font-size:12.5px;font-weight:700}
+.bars{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;align-items:end;height:190px;padding-top:22px}
+.bars div{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;gap:4px;min-width:0}
+.bars i{display:block;width:100%;max-width:46px;border-radius:8px 8px 3px 3px;background:var(--surface2)}
+.bars div.today i{background:var(--terra)}
+.bars small{font-size:11.5px;color:var(--muted);font-weight:600}
+.bars b{font-size:11.5px}
+.dist{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;font-size:13px;margin-block:4px}
+.dist span.tr{height:8px;border-radius:5px;background:var(--surface2);overflow:hidden}
+.dist span.tr i{display:block;height:100%;background:var(--gold)}
+.star{color:var(--gold);font-weight:700}
+.reply{background:var(--surface2);border-radius:12px;padding:10px 12px;margin-top:8px;font-size:14px}
+.tbl{overflow-x:auto}
+.tbl table{border-collapse:collapse;width:100%;font-size:14px}
+.tbl th,.tbl td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl th{color:var(--muted);font-weight:700;font-size:12.5px}
+@media (min-width:640px){.tiles{grid-template-columns:repeat(4,1fr)}.tables{grid-template-columns:repeat(3,1fr)}}
+@media (min-width:900px){
+  .grid2{grid-template-columns:repeat(3,1fr);align-items:start}
+  .tables{grid-template-columns:repeat(5,1fr)}
+  .two{display:grid;grid-template-columns:1.5fr 1fr;gap:20px;align-items:start}
+}
+</style>
+</head>
+<body>
+<div class="osp-bar"><a href="./">&larr; Todas as áreas</a></div>
+
+<div class="wrap" id="app"></div>
+<div id="toast" class="toast" hidden></div>
+
+<script src="api.js"></script>
+<script>
+const eur=n=>n.toLocaleString('pt-PT',{style:'currency',currency:'EUR'});
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const hm=m=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+const tm=s=>{const [h,m]=s.split(':').map(Number);return h*60+m};
+const PREP=20;
+
+const ON=OSP.on;
+let DISH={
+ t1:['Pastéis de bacalhau',7.5],t2:['Alheira assada',8.5],t3:['Arroz de pato',15.5],
+ t4:['Bacalhau à lagareiro',18.9],t5:['Bochechas de porco',16.5],t6:['Pudim abade de priscos',5.5]};
+let TABLES=[{id:'M1',n:2},{id:'M2',n:2},{id:'M3',n:2},{id:'M4',n:4},{id:'M5',n:4},{id:'M6',n:4},{id:'M7',n:6},{id:'M8',n:6},{id:'M9',n:8},{id:'M10',n:2}].map(t=>({...t,online:true}));
+
+const mk=(code,time,name,party,items,st,ord,table,note)=>({code,time,name,party,items,st,ord,table:table||null,note:note||'',paid:items.reduce((a,[id,q])=>a+DISH[id][1]*q,0)});
+const initial=()=>[
+ mk('OSP-A1','13:00','Ana Matos',2,[['t3',2]],'concluida','servido','M2'),
+ mk('OSP-A2','13:15','Grupo Silva',6,[['t4',3],['t3',3],['t6',4]],'concluida','servido','M7'),
+ mk('OSP-B1','19:00','Carla Nunes',2,[['t1',1],['t4',2],['t6',2]],'sentada','servido','M3'),
+ mk('OSP-B2','19:30','Miguel Rocha',4,[['t3',2],['t4',2]],'chegou','pronto',null),
+ mk('OSP-B3','19:45','Helena Costa',2,[['t3',1],['t2',1],['t6',1]],'confirmada','preparar',null,'Alergia: glúten. Confirmar sem pão na alheira.'),
+ mk('OSP-B4','20:00','Família Pires',5,[['t3',3],['t4',2],['t1',2]],'confirmada','novo',null,'Uma cadeira de bebé.'),
+ mk('OSP-B5','20:00','João Vaz',2,[['t4',2]],'confirmada','novo',null),
+ mk('OSP-B6','20:30','Rita Faria',3,[['t3',2],['t2',1],['t6',3]],'confirmada','novo',null,'Aniversário. Vela na sobremesa.'),
+   mk('OSP-B7','21:00','Tiago Brito',2,[['t2',1],['t4',1],['t3',1]],'confirmada','novo',null),
+ mk('OSP-B8','21:30','Sónia Lima',4,[['t3',4]],'confirmada','novo',null,'Alergia: frutos secos.'),
+ mk('OSP-B9','19:30','Pedro Dias',2,[['t4',2]],'cancelada','novo',null)
+];
+let MENU=[
+ {id:'t1',cat:'Entradas',name:'Pastéis de bacalhau',price:7.5,stock:24,on:true},
+ {id:'t2',cat:'Entradas',name:'Alheira assada',price:8.5,stock:12,on:true},
+ {id:'t3',cat:'Pratos',name:'Arroz de pato',price:15.5,stock:14,on:true},
+ {id:'t4',cat:'Pratos',name:'Bacalhau à lagareiro',price:18.9,stock:3,on:true},
+ {id:'t5',cat:'Pratos',name:'Bochechas de porco',price:16.5,stock:0,on:false},
+ {id:'t6',cat:'Sobremesas',name:'Pudim abade de priscos',price:5.5,stock:18,on:true}];
+let REV=ON?[]:[
+ {id:1,u:'Marta S.',r:5,t:'O arroz de pato estava quente e pronto mal nos sentámos. Muito prático.',d:'há 2 dias',reply:''},
+ {id:2,u:'João P.',r:4,t:'Boa comida e atendimento rápido. A mesa já estava preparada.',d:'há 1 semana',reply:'Obrigado, João. Esperamos por si em breve.'},
+ {id:3,u:'Beatriz F.',r:3,t:'Comida muito boa, mas esperámos 10 minutos pela mesa à hora marcada.',d:'há 1 semana',reply:''},
+ {id:4,u:'Rui T.',r:5,t:'Bacalhau perfeito. Pagar antes poupou tempo.',d:'há 2 semanas',reply:''},
+ {id:5,u:'Lúcia G.',r:5,t:'Sobremesa excelente.',d:'há 3 semanas',reply:''}];
+const WEEK=[['Sex',612],['Sáb',904],['Dom',731],['Seg',388],['Ter',455],['Qua',502]];
+const COMM=0.08;
+const S={tab:'hoje',now:19*60+40,R:ON?[]:initial(),key:OSP.store.get('osp_rkey'),info:null,live:'',stopLive:null,ALL:[],day:'',closed:new Set(),announced:new Set(),firstLoad:true,loading:ON&&!!OSP.store.get('osp_rkey'),err:'',fin:null,f:'todas',pick:null,open:null,mf:'Todos',revf:'todas'};
+const $=s=>document.querySelector(s);
+const stLabel={confirmada:['Confirmada','p-conf'],chegou:['Chegou','p-cheg'],sentada:['Na mesa','p-sent'],concluida:['Concluída','p-done'],cancelada:['Cancelada','p-bad'],naoveio:['Não veio','p-bad']};
+const ordLabel={novo:'Por iniciar',preparar:'A preparar',pronto:'Pronto',servido:'Servido'};
+const active=r=>!['cancelada','naoveio'].includes(r.st);
+const TODAY=()=>OSP.isoDate(new Date());
+const ALLR=()=>ON?S.ALL:S.R;
+const dLabel=iso=>iso===TODAY()?'Hoje':iso.slice(8)+'/'+iso.slice(5,7);
+const isNew=r=>r.seen===false&&r.st==='confirmada';
+const newList=()=>ALLR().filter(isNew);
+const mesaTxt=r=>r.table?`Mesa ${r.table}`:'Mesa por atribuir';
+const sorted=()=>[...S.R].sort((a,b)=>tm(a.time)-tm(b.time));
+const sameDay=r=>!r.date||r.date===TODAY();
+const waitArr=r=>!!r.arr&&r.ord==='novo'&&!['chegou','sentada'].includes(r.st);
+const isLate=r=>sameDay(r)&&r.st==='confirmada'&&S.now>=tm(r.time)+15;
+const tableBusy=id=>S.R.find(r=>r.table===id&&['chegou','sentada'].includes(r.st));
+const tableSoon=id=>S.R.find(r=>r.table===id&&r.st==='confirmada');
+function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2200)}
+const itemsTxt=r=>r.items.map(([id,q])=>q+' × '+DISH[id][0]).join(', ');
+
+function header(){
+  const kitchen=S.R.filter(r=>active(r)&&['novo','preparar'].includes(r.ord)&&!['concluida'].includes(r.st)).length;
+  const low=MENU.filter(d=>d.on&&d.stock<=3).length;
+  const unans=REV.filter(v=>!v.reply).length;
+  const tabs=[['hoje','Hoje'],['reservas','Reservas',newList().length],['cozinha','Cozinha',kitchen],['mesas','Mesas'],['menu','Menu e stock',low],['aval','Avaliações',unans],['fin','Finanças']];
+  return `<header class="top"><div class="brand"><div class="lg">${esc(ON&&S.info?S.info.name[0]:'T')}</div><div><b>${esc(ON&&S.info?S.info.name:'Tasca do Largo')}</b><small>Área do restaurante${ON?' · ligado ao servidor':' · Serviço de jantar'}</small></div></div>
+  <div class="rside"><div class="clock" title="Hora simulada do serviço"><span class="num">${hm(S.now)}</span>${ON?`<span title="${S.live==='ligado'?'Ligado: as reservas chegam na hora':'Sem ligação em direto: a atualizar de 10 em 10 segundos'}" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600"><i style="width:9px;height:9px;border-radius:50%;background:${S.live==='ligado'?'#3f8a3f':'#c08a1d'};display:inline-block"></i>${S.live==='ligado'?'Em direto':'Sem direto'}</span><button data-a="logout">Sair</button>`:`<button data-a="tick">+15 min</button>`}</div><button class="themebtn" data-a="theme" aria-label="Alternar tema">◐</button></div></header>
+  ${ON?`<div class="fullbar" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 16px"><span class="meta" style="margin:0">${S.closed.has(TODAY())?'<b>Hoje: reservas fechadas (cheio).</b> Os clientes já não conseguem reservar.':'Reservas abertas para hoje, sempre até dizer que está cheio.'}</span><button class="btn ${S.closed.has(TODAY())?'':'ghost'}" data-a="day" data-v="${TODAY()}">${S.closed.has(TODAY())?'Reabrir reservas de hoje':'Estamos cheios'}</button></div>`:''}
+  <nav class="tabs" role="tablist">${tabs.map(([k,l,c])=>`<button role="tab" data-a="tab" data-v="${k}" aria-selected="${S.tab===k}">${l}${c?`<span class="cnt">${c}</span>`:''}</button>`).join('')}</nav>`;
+}
+
+function actions(r){
+  if(ON&&r.date&&r.date!==TODAY())return '';
+  if(r.st==='confirmada'){const early=ON&&sameDay(r)&&S.now<tm(r.time)+15;return `<button class="btn" data-a="arrive" data-v="${r.code}">Chegou</button><button class="btn ghost" data-a="noshow" data-v="${r.code}" ${early?'disabled title="Só pode marcar falta 15 min depois da hora"':''}>${early?'Não veio (a partir das '+hm(tm(r.time)+15)+')':'Não veio'}</button>`}
+  if(r.st==='chegou')return `<button class="btn" data-a="pick" data-v="${r.code}">Sentar na mesa</button>`;
+  if(r.st==='sentada')return `<button class="btn ok" data-a="finish" data-v="${r.code}">Concluir</button>`;
+  return '';
+}
+function resCard(r,compact){
+  const [l,c]=stLabel[r.st];
+  const ordTag=active(r)&&r.st!=='concluida'?`<span class="pill ${r.ord==='pronto'?'p-sent':r.ord==='preparar'?'p-cheg':'p-done'}">Pratos: ${ordLabel[r.ord].toLowerCase()}</span>`:'';
+  const start=tm(r.time)-(r.prepMin||PREP);
+  const urgent=sameDay(r)&&active(r)&&r.ord==='novo'&&!waitArr(r)&&(r.arr||S.now>=start)&&r.st!=='concluida';
+  const free=TABLES.filter(t=>t.n>=r.party&&!tableBusy(t.id));
+  return `<div class="panel" ${isNew(r)?'style="border-color:var(--terra);box-shadow:0 0 0 2px var(--terra-soft,#f3d3c6)"':''}><div class="res"><div class="t num">${r.time}<small>${r.date&&r.date!==TODAY()?dLabel(r.date):r.party+' pess.'}</small></div><div style="min-width:0">
+  <div class="nm">${isNew(r)?'<span class="pill p-bad">Nova</span>':''}<b>${esc(r.name)}</b><span class="pill ${c}">${l}</span>${ordTag}${r.table?`<span class="pill p-done">${r.st==='confirmada'?'Mesa '+r.table+' reservada':'Mesa '+r.table}</span>`:''}</div>
+  <div class="items"><b>Mesa reservada:</b> ${r.table||'por atribuir'} · ${r.party} ${r.party>1?'pessoas':'pessoa'} · ${r.time}</div>
+  <div class="items"><b>Pedido:</b> ${itemsTxt(r)}</div>
+  ${isNew(r)?`<div class="acts"><button class="btn sec" data-a="seen" data-v="${r.code}">Marcar como vista</button></div>`:''}<div class="meta num">${r.code} · pago ${eur(r.paid)}</div>
+  ${r.note?`<div class="alert">${esc(r.note)}</div>`:''}
+  ${isLate(r)?`<div class="late">Atrasada ${S.now-tm(r.time)} min. Pode contactar o cliente ou libertar a mesa.</div>`:''}
+  ${r.held?`<div class="meta">Pagamento retido até o cliente confirmar o serviço (no máximo mais ${r.heldH} h).</div>`:''}${r.disp==='aberta'?'<div class="meta">Em análise pela administração: pagamento retido até haver decisão.</div>':''}
+  ${urgent?`<div class="late">${r.arr?'Cliente chegou: iniciar a preparação agora.':'Iniciar a preparação agora para servir às '+r.time+'.'}</div>`:''}${r.claim&&r.st==='confirmada'?`<div class="late" style="background:var(--olive-soft,#e3e8cf);color:inherit"><b>O cliente indicou na app que chegou às ${r.claim}.</b> Se marcar falta, a administração analisa o caso.</div>`:''}${waitArr(r)&&active(r)?`<div class="meta"><b>Só à chegada:</b> o cliente já pagou, a cozinha começa quando ele chegar.</div>`:''}
+  <div class="acts">${actions(r)}</div>
+  ${S.pick===r.code?`<div class="opts"><p>Escolha a mesa para ${r.party} ${r.party>1?'pessoas':'pessoa'}</p>${TABLES.map(t=>`<button class="opt" data-a="seat" data-v="${r.code}|${t.id}" ${t.n>=r.party&&!tableBusy(t.id)?'':'disabled'}>${t.id} · ${t.n}</button>`).join('')}${free.length?'':'<p>Sem mesa livre com lugares suficientes.</p>'}<button class="btn ghost" data-a="pick" data-v="">Cancelar</button></div>`:''}
+  </div></div></div>`;
+}
+
+function newBox(){
+  const l=newList();if(!l.length)return '';
+  return `<div class="panel" style="border-color:var(--terra)"><h2 class="sec" style="margin-top:0">${l.length} ${l.length>1?'novas reservas':'nova reserva'}</h2>${l.map(r=>`<div class="line" style="align-items:center;gap:10px"><div style="min-width:0"><b class="num">${r.date&&r.date!==TODAY()?dLabel(r.date)+' · ':''}${r.time}</b> · ${esc(r.name)}<div class="meta">${mesaTxt(r)} · ${r.party} ${r.party>1?'pessoas':'pessoa'}</div><div class="meta">Pedido: ${itemsTxt(r)}</div>${r.note?`<div class="alert">${esc(r.note)}</div>`:''}</div><button class="btn sec" data-a="seen" data-v="${r.code}">Vista</button></div>`).join('')}</div>`;
+}
+function hoje(){
+  const act=S.R.filter(active);
+  const pend=act.filter(r=>['confirmada','chegou'].includes(r.st));
+  const next=sorted().filter(r=>['confirmada','chegou'].includes(r.st)).slice(0,4);
+  const prep=act.filter(r=>r.st!=='concluida'&&['novo','preparar'].includes(r.ord)).length;
+  const alerts=sorted().filter(r=>(r.note||isLate(r))&&['confirmada','chegou','sentada'].includes(r.st));
+  const rev=act.reduce((a,r)=>a+r.paid,0);
+  const seats=TABLES.reduce((a,t)=>a+t.n,0);
+  const occ=TABLES.filter(t=>tableBusy(t.id)).reduce((a,t)=>a+t.n,0);
+  return newBox()+`<div class="tiles"><div class="tile"><small>Reservas hoje</small><b class="num">${act.length}</b><span class="num">${pend.length} por chegar</span></div>
+  <div class="tile"><small>Pessoas</small><b class="num">${act.reduce((a,r)=>a+r.party,0)}</b><span>${S.R.filter(r=>!active(r)).length} canceladas</span></div>
+  <div class="tile"><small>Pratos por preparar</small><b class="num">${prep}</b><span>encomendas na cozinha</span></div>
+  <div class="tile"><small>Pré-pago hoje</small><b class="num">${eur(rev)}</b><span>${Math.round(occ/seats*100)}% da sala ocupada</span></div></div>
+  <div class="two"><div><h2 class="sec">Próximas chegadas</h2>${next.length?next.map(r=>resCard(r)).join(''):'<div class="empty">Sem mais chegadas previstas.</div>'}</div>
+  <div><h2 class="sec">Atenção</h2>${alerts.length?alerts.map(r=>`<div class="panel"><b>${r.time} · ${esc(r.name)}</b><div class="${isLate(r)?'late':'alert'}" style="margin-top:6px">${isLate(r)?'Atrasada '+(S.now-tm(r.time))+' min':esc(r.note)}</div></div>`).join(''):'<div class="empty">Nada a assinalar.</div>'}</div></div>`;
+}
+function reservas(){
+  const f=S.f;
+  if(ON){
+    const days=[];const n=new Date();for(let i=0;i<7;i++){const d=new Date(n);d.setDate(n.getDate()+i);days.push(OSP.isoDate(d))}
+    if(!S.day)S.day=days[0];
+    const dayChips=`<div class="chips" role="group" aria-label="Dia">${days.map(d=>{const c=ALLR().filter(r=>r.date===d&&active(r)).length,nw=ALLR().filter(r=>r.date===d&&isNew(r)).length;return `<button class="chip num" data-a="rday" data-v="${d}" aria-pressed="${S.day===d}">${dLabel(d)} · ${c}${nw?' ●':''}</button>`}).join('')}</div>`;
+    const base=ALLR().filter(r=>r.date===S.day);
+    const filt2={todas:()=>true,proximas:r=>r.st==='confirmada',sala:r=>['chegou','sentada'].includes(r.st),fim:r=>['concluida','cancelada','naoveio'].includes(r.st)}[f];
+    const list2=[...base].sort((a,b)=>tm(a.time)-tm(b.time)).filter(filt2);
+    const L2=[['todas','Todas'],['proximas','Por chegar'],['sala','Na sala'],['fim','Terminadas']];
+    const cnt=k=>base.filter({todas:()=>true,proximas:r=>r.st==='confirmada',sala:r=>['chegou','sentada'].includes(r.st),fim:r=>['concluida','cancelada','naoveio'].includes(r.st)}[k]).length;
+    return dayChips+`<div class="chips">${L2.map(([k,l])=>`<button class="chip num" data-a="f" data-v="${k}" aria-pressed="${f===k}">${l} · ${cnt(k)}</button>`).join('')}</div>`+(list2.length?list2.map(r=>resCard(r)).join(''):'<div class="empty">Sem reservas neste dia.</div>');
+  }
+  const filt={todas:()=>true,proximas:r=>r.st==='confirmada',sala:r=>['chegou','sentada'].includes(r.st),fim:r=>['concluida','cancelada','naoveio'].includes(r.st)}[f];
+  const list=sorted().filter(filt);
+  const counts={todas:S.R.length,proximas:S.R.filter(r=>r.st==='confirmada').length,sala:S.R.filter(r=>['chegou','sentada'].includes(r.st)).length,fim:S.R.filter(r=>['concluida','cancelada','naoveio'].includes(r.st)).length};
+  const L=[['todas','Todas'],['proximas','Por chegar'],['sala','Na sala'],['fim','Terminadas']];
+  return `<div class="chips">${L.map(([k,l])=>`<button class="chip num" data-a="f" data-v="${k}" aria-pressed="${f===k}">${l} · ${counts[k]}</button>`).join('')}</div>
+  ${list.length?list.map(r=>resCard(r)).join(''):'<div class="empty">Sem reservas neste filtro.</div>'}`;
+}
+function kcard(r){
+  const start=tm(r.time)-(r.prepMin||PREP);
+  const wait=waitArr(r);
+  const urgent=!wait&&r.ord==='novo'&&(r.arr||S.now>=start);
+  const nxt={novo:['Iniciar','start'],preparar:['Marcar pronto','ready'],pronto:['Entregue','serve']}[r.ord];
+  return `<div class="kc ${urgent?'urgent':''}"><div class="hd"><b class="num" style="font-family:var(--display);font-size:18px">${r.time}</b><span class="meta">${esc(r.name)} · ${r.party} pess.</span></div>
+  <ul>${r.items.map(([id,q])=>`<li><b class="num">${q}×</b> ${DISH[id][0]}</li>`).join('')}</ul>
+  ${r.note?`<div class="alert">${esc(r.note)}</div>`:''}
+  <div class="meta" style="margin-top:8px">${wait?'<b>Só à chegada:</b> aguarda o cliente (já pagou)':r.ord==='novo'?(urgent?'<b style="color:var(--terra)">Iniciar agora</b>':'Iniciar às '+hm(start)):r.ord==='pronto'?(r.st==='chegou'||r.st==='sentada'?'Cliente na sala: servir':'A aguardar o cliente'):'Em preparação'}</div>
+  <div class="acts"><button class="btn ${r.ord==='pronto'?'ok':''}" data-a="${nxt[1]}" data-v="${r.code}" ${wait?'disabled':''}>${wait?'Aguarda chegada':nxt[0]}</button></div></div>`;
+}
+function cozinha(){
+  const q=sorted().filter(r=>active(r)&&r.ord!=='servido');
+  const col=(k,t)=>{const l=q.filter(r=>r.ord===k);return `<div class="col"><h3>${t}<span class="cnt">${l.length}</span></h3>${l.length?l.map(kcard).join(''):'<div class="empty" style="padding:16px">Vazio</div>'}</div>`};
+  return `<p class="meta" style="margin-top:0">Os pedidos chegam já pagos. A preparação sugerida começa ${PREP} min antes da hora de chegada. Os pedidos marcados «Só à chegada» esperam que o cliente chegue.</p><div class="grid2">${col('novo','Por iniciar')}${col('preparar','A preparar')}${col('pronto','Prontos')}</div>`;
+}
+function next7(){const a=[];const n=new Date();for(let i=0;i<7;i++){const d=new Date(n);d.setDate(n.getDate()+i);a.push(d)}return a}
+function avail(){
+  const days=next7();
+  const open=TABLES.filter(t=>t.online).length;
+  return `<h2 class="sec" style="margin-top:0">Disponibilidade para reservas online</h2><div class="panel">
+  <p class="meta" style="margin-top:0">Só as mesas abertas aparecem aos clientes. ${open?`<b>${open} de ${TABLES.length}</b> mesas abertas (${TABLES.filter(t=>t.online).reduce((a,t)=>a+t.n,0)} lugares).`:'<b>Nenhuma mesa aberta: os clientes não conseguem reservar.</b>'}</p>
+  <div class="opts">${TABLES.map(t=>`<button class="opt" data-a="tonline" data-v="${t.id}" aria-pressed="${t.online}">${t.id} · ${t.n}<small>${t.online?'Aberta':'Fechada'}</small></button>`).join('')}</div>
+  <p class="meta">Dias em que aceita reservas online (toque para fechar ou abrir o dia):</p>
+  <div class="opts">${days.map(d=>{const iso=OSP.isoDate(d);const closed=S.closed.has(iso);return `<button class="opt" data-a="day" data-v="${iso}" aria-pressed="${!closed}">${d.toLocaleDateString('pt-PT',{weekday:'short'}).replace('.','')} ${d.getDate()}/${d.getMonth()+1}<small>${closed?'Fechado':'Aberto'}</small></button>`}).join('')}</div></div>`;
+}
+function mesas(){
+  return avail()+`<div class="legend"><span><i></i>Livre</span><span><i style="background:var(--gold-soft);border-color:var(--gold)"></i>Reservada</span><span><i style="background:var(--olive-soft);border-color:var(--olive)"></i>Ocupada</span></div>
+  <div class="tables">${TABLES.map(t=>{const b=tableBusy(t.id),s=tableSoon(t.id);
+   return `<div class="tb ${b?'occ':s?'soon':''}"><h4>${t.id}</h4><small>${t.n} lugares${t.online?'':' · fechada online'}</small>${b?`<b style="font-size:14px">${esc(b.name)}</b><small>${b.party} pess. · ${b.st==='chegou'?'à espera':'servida'}</small>`:s?`<b style="font-size:14px">${s.time} · ${esc(s.name)}</b><small>${s.party} pess.</small>`:'<small style="margin-top:8px">Disponível</small>'}</div>`}).join('')}</div>`;
+}
+function stockReport(){
+  if(!ON||!S.stk)return '';
+  const it=S.stk.items,why={reserva:'Reserva',devolucao:'Devolvido',ajuste:'Ajuste',inicial:'Inicial'};
+  return `<h2 class="sec">Consumo dos últimos ${S.stk.days} dias</h2><div class="panel">`+
+    (it.filter(i=>i.sold||i.status!=='ok').map(i=>`<div class="meta" style="display:flex;justify-content:space-between;gap:8px;padding:4px 0"><span>${esc(i.name)}</span><span>${i.sold} vendidas · ${i.status==='ok'?'em stock '+i.stock:i.status==='baixo'?'stock baixo ('+i.stock+')':'esgotado'}</span></div>`).join('')||'<span class="meta">Ainda sem movimentos.</span>')+
+    `</div><h2 class="sec">Últimos movimentos</h2><div class="panel">`+
+    (S.stk.recent.slice(0,10).map(m=>`<div class="meta" style="display:flex;justify-content:space-between;gap:8px;padding:3px 0"><span>${esc(m.dish)} · ${why[m.reason]||m.reason}</span><span>${m.delta>0?'+':''}${m.delta}</span></div>`).join('')||'<span class="meta">Sem movimentos.</span>')+`</div>`;
+}
+function menu(){
+  const cats=['Todos',...new Set(MENU.map(d=>d.cat))];
+  const l=MENU.filter(d=>S.mf==='Todos'||d.cat===S.mf);
+  return `<div class="chips">${cats.map(c=>`<button class="chip" data-a="mf" data-v="${c}" aria-pressed="${S.mf===c}">${c}</button>`).join('')}</div>
+  ${ON?`<div class="panel"><h3 style="margin:0 0 6px">Preços e descrições</h3><p class="meta" style="margin:0 0 8px">Só o seu restaurante e a administração da app podem ver e alterar estes valores. Depois de submetidos ficam trancados: para mudar, destranque o prato. Alterar, submeter e trancar exige o PIN do responsável.</p>
+  ${S.info&&S.info.pinSet?`<div class="form"><label class="lbl">PIN do responsável (6 dígitos)<input type="password" id="mgr-pin" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="••••••"></label><button class="btn ghost" data-a="lockall">Trancar todo o menu</button></div>
+    <details style="margin-top:8px"><summary class="meta">Alterar o PIN</summary><div class="form"><label class="lbl">PIN atual<input type="password" id="pin-old" inputmode="numeric" maxlength="6" autocomplete="off"></label><label class="lbl">Novo PIN<input type="password" id="pin-new" inputmode="numeric" maxlength="6" autocomplete="off"></label><button class="btn ghost" data-a="chpin">Alterar PIN</button></div></details>`
+  :`<div class="note"><b>Ainda não tem PIN do responsável.</b> Crie um PIN de 6 dígitos que só o responsável conhece. Sem PIN não é possível alterar preços nem descrições. Se o esquecer, a administração repõe-no.</div>
+  <div class="form"><label class="lbl">Novo PIN (6 dígitos)<input type="password" id="pin-new" inputmode="numeric" maxlength="6" autocomplete="off"></label><label class="lbl">Repetir o PIN<input type="password" id="pin-new2" inputmode="numeric" maxlength="6" autocomplete="off"></label><button class="btn" data-a="setpin">Criar PIN</button></div>`}</div>`:''}
+  <div class="two"><div>${l.map(d=>{
+    const st=!d.on?['Indisponível','p-bad']:d.stock<=(d.low??3)?['Stock baixo','p-cheg']:['À venda','p-sent'];
+    return `<div class="panel mi"><div style="min-width:0"><h4>${esc(d.name)}</h4><span class="meta">${d.cat}</span></div><span class="pill ${st[1]}">${st[0]}</span>
+    ${ON?`<div class="ctl" style="flex:1 1 100%;width:100%"><label class="lbl" style="flex:1 1 100%">Nome do prato<input type="text" id="dn-${d.id}" value="${esc(d.name)}" maxlength="80" ${d.locked?'disabled':''}></label>
+    <label class="lbl" style="flex:1 1 100%">Descrição (o cliente vê)<textarea id="dd-${d.id}" maxlength="200" ${d.locked?'disabled':''}>${esc(d.desc)}</textarea></label>
+    <label class="lbl">Preço (€)<input type="number" id="dp-${d.id}" step="0.01" min="0" value="${d.price}" ${d.locked?'disabled':''}></label>
+    ${d.locked?`<span class="pill p-done">Trancado${d.lockedBy==='administração'?' pela administração':''}</span>${d.lockedBy==='administração'?'':`<button class="btn ghost" data-a="unlock" data-v="${d.id}">Destrancar para editar</button>`}`:`<button class="btn" data-a="savedish" data-v="${d.id}">Submeter e trancar</button>`}</div>`:''}
+    <div class="ctl">${ON?'':`<label class="lbl">Preço (€)<input type="number" step="0.1" min="0" value="${d.price}" data-price="${d.id}" aria-label="Preço de ${esc(d.name)}"></label>`}
+    <div class="lbl">Stock hoje<span class="stepper"><button data-a="stk" data-v="${d.id}|-1" aria-label="Menos">−</button><span class="num">${d.stock}</span><button data-a="stk" data-v="${d.id}|1" aria-label="Mais">+</button></span></div>
+    <label class="lbl">Avisar abaixo de<input type="number" min="0" value="${d.low??3}" data-low="${d.id}" aria-label="Avisar stock baixo de ${esc(d.name)}"></label>
+    <div class="lbl">Disponível<button class="sw" role="switch" aria-checked="${d.on}" data-a="on" data-v="${d.id}" aria-label="Disponível: ${esc(d.name)}"></button></div></div></div>`}).join('')}</div>
+  <div><h2 class="sec" style="margin-top:0">Novo prato</h2><div class="panel"><div class="form">
+    <label class="lbl" style="flex:1 1 100%">Nome<input type="text" id="nd-name" placeholder="Ex.: Açorda de gambas"></label>
+    <label class="lbl">Categoria<select id="nd-cat">${[...new Set(MENU.map(d=>d.cat))].map(c=>`<option>${c}</option>`).join('')}</select></label>
+    <label class="lbl">Preço (€)<input type="number" id="nd-price" step="0.1" min="0" value="12.5"></label>
+    <label class="lbl">Stock<input type="number" id="nd-stock" min="0" value="10"></label>
+    <button class="btn" data-a="newdish">Adicionar ao menu</button></div></div>
+  ${stockReport()}
+  ${ON&&S.hist&&S.hist.length?`<h2 class="sec">Histórico de alterações</h2><div class="panel">${S.hist.slice(0,15).map(h=>`<div class="meta"><b>${esc(h.dish)}</b> · ${esc(h.field)}: ${esc(h.oldValue)} → ${esc(h.newValue)} · ${esc(h.by)} · ${esc(String(h.at))}</div>`).join('')}</div>`:''}
+  <p class="meta">Ao iniciar um pedido na cozinha, o stock desce automaticamente. Quando chega a zero, o prato deixa de aparecer como disponível para os clientes.</p></div></div>`;
+}
+function aval(){
+  if(ON)return `<div class="empty">As avaliações dos clientes chegam numa próxima fase.</div>`;
+  const n=REV.length,avg=REV.reduce((a,v)=>a+v.r,0)/n;
+  const l=REV.filter(v=>S.revf==='todas'||!v.reply);
+  return `<div class="two"><div><div class="chips">${[['todas','Todas'],['sem','Sem resposta']].map(([k,t])=>`<button class="chip" data-a="revf" data-v="${k}" aria-pressed="${S.revf===k}">${t}</button>`).join('')}</div>
+  ${l.length?l.map(v=>`<div class="panel"><div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(v.u)}</b><span class="meta">${v.d}</span></div><div class="star">${'★'.repeat(v.r)}${'☆'.repeat(5-v.r)}</div><p style="margin:4px 0 0">${esc(v.t)}</p>
+  ${v.reply?`<div class="reply"><b>A sua resposta</b><br>${esc(v.reply)}</div>`:`<textarea id="rp-${v.id}" placeholder="Responder ao cliente" style="margin-top:8px"></textarea><div class="acts"><button class="btn" data-a="reply" data-v="${v.id}">Responder</button></div>`}</div>`).join(''):'<div class="empty">Todas as avaliações têm resposta.</div>'}</div>
+  <div class="panel"><div style="display:flex;gap:12px;align-items:baseline"><h2 class="num" style="font-size:40px">${avg.toFixed(1)}</h2><span class="star">${'★'.repeat(Math.round(avg))}</span><span class="meta num">${n} avaliações</span></div>
+  ${[5,4,3,2,1].map(s=>{const c=REV.filter(v=>v.r===s).length;return `<div class="dist"><span class="num">${s}★</span><span class="tr"><i style="width:${c/n*100}%"></i></span><span class="num">${c}</span></div>`}).join('')}
+  <p class="meta" style="margin-bottom:0">Só clientes que concluíram uma refeição podem avaliar.</p></div></div>`;
+}
+function fin(){
+  if(ON)return finReal();
+  const act=S.R.filter(active);
+  const today=act.reduce((a,r)=>a+r.paid,0);
+  const week=[...WEEK,['Hoje',today]];
+  const max=Math.max(...week.map(w=>w[1]));
+  const total=week.reduce((a,w)=>a+w[1],0);
+  const comm=total*COMM;
+  const tk=today/Math.max(1,act.length);
+  return `<div class="tiles"><div class="tile"><small>Pré-pago hoje</small><b class="num">${eur(today)}</b><span>${act.length} reservas</span></div>
+  <div class="tile"><small>Valor médio por reserva</small><b class="num">${eur(tk)}</b><span>hoje</span></div>
+    <div class="tile"><small>Últimos 7 dias</small><b class="num">${eur(total)}</b><span>bruto</span></div>
+  <div class="tile"><small>A receber (líquido)</small><b class="num">${eur(total-comm)}</b><span>após comissão de ${Math.round(COMM*100)}%</span></div></div>
+  <div class="two"><div><h2 class="sec">Vendas por dia</h2><div class="panel"><div class="bars" role="img" aria-label="Vendas dos últimos 7 dias">${week.map(([d,v])=>`<div class="${d==='Hoje'?'today':''}"><b class="num">${Math.round(v)}</b><i style="height:${Math.max(4,v/max*100)}%"></i><small>${d}</small></div>`).join('')}</div><p class="meta" style="margin-bottom:0">Valores em euros. Hoje inclui reservas ainda por chegar, já pagas.</p></div></div>
+  <div><h2 class="sec">Pagamentos</h2><div class="panel tbl"><table><thead><tr><th>Período</th><th>Bruto</th><th>Comissão</th><th>Líquido</th></tr></thead><tbody>
+  ${[['21–27 set',3180],['14–20 set',2940],['7–13 set',3320]].map(([p,g])=>`<tr><td>${p}</td><td class="num">${eur(g)}</td><td class="num">−${eur(g*COMM)}</td><td class="num"><b>${eur(g*(1-COMM))}</b></td></tr>`).join('')}</tbody></table></div>
+  <p class="meta">Taxa de comissão e valores de exemplo, definidos pela administração da plataforma.</p></div></div>`;
+}
+function loginView(){
+  return `<main style="max-width:420px;margin:60px auto 0"><div class="panel"><h2 class="sec" style="margin-top:0">Entrar na área do restaurante</h2>
+  <p class="meta">Introduza a chave que a administração lhe enviou.</p>
+  <input id="rk" type="password" autocomplete="off" placeholder="Chave do restaurante" style="width:100%;min-height:48px;margin:8px 0">
+  ${S.err?`<div class="alert">${esc(S.err)}</div>`:''}
+  <div class="acts"><button class="btn" data-a="login">Entrar</button></div></div></main>`;
+}
+const toHM=m=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+function finReal(){
+  const f=S.fin;if(!f)return '<div class="empty">A carregar…</div>';
+  const days=f.days.map(d=>[d.date.slice(8)+'/'+d.date.slice(5,7),d.grossCents/100]);
+  const max=Math.max(1,...days.map(d=>d[1]));const total=days.reduce((a,d)=>a+d[1],0);
+  return `<div class="tiles"><div class="tile"><small>Vendas (últimos dias)</small><b class="num">${eur(total)}</b><span>bruto, pré-pagas</span></div>
+  <div class="tile"><small>A receber</small><b class="num">${eur(f.toReceiveCents/100)}</b><span>já após comissão de ${f.ratePct}%</span></div>
+  <div class="tile"><small>Já recebido</small><b class="num">${eur(f.paidOutCents/100)}</b><span>pagamentos da plataforma</span></div></div>
+  <h2 class="sec">Vendas por dia</h2><div class="panel">${days.length?`<div class="bars" role="img" aria-label="Vendas por dia">${days.map(([d,v])=>`<div><b class="num">${Math.round(v)}</b><i style="height:${Math.max(4,v/max*100)}%"></i><small>${d}</small></div>`).join('')}</div>`:'<div class="empty">Ainda sem vendas.</div>'}</div>`;
+}
+function render(){
+  if(ON&&!S.key){$('#app').innerHTML=loginView();return}
+  if(ON&&S.loading){$('#app').innerHTML='<main><div class="empty">A carregar…</div></main>';return}
+  const body={hoje,reservas,cozinha,mesas,menu,aval,fin}[S.tab]();
+  $('#app').innerHTML=header()+`<main>${body}</main>`;
+}
+const find=c=>S.R.find(r=>r.code===c);
+const ST={confirmada:'confirmada',chegou:'chegou',sentada:'sentada',concluida:'concluida',cancelada:'cancelada',nao_veio:'naoveio'};
+const OD={novo:'novo',em_preparacao:'preparar',pronto:'pronto',servido:'servido'};
+const nowReal=()=>{const d=new Date();return d.getHours()*60+d.getMinutes()};
+const api=(m,p,b)=>m==='GET'?OSP.get(p,S.key):OSP.post(p,b,S.key);
+let pending=null;
+function refreshSoon(){if(pending)return;pending=setTimeout(()=>{pending=null;if(S.key&&!S.loading)loadAll()},120)}
+function startLive(){
+  if(!ON||!S.key||S.stopLive)return;
+  S.stopLive=OSP.stream('/api/restaurante/eventos',S.key,()=>refreshSoon(),st=>{S.live=st;if(st==='ligado')refreshSoon();else render()});
+}
+function stopLive(){if(S.stopLive){S.stopLive();S.stopLive=null}S.live=''}
+async function loadAll(first){
+  try{
+    const today=OSP.isoDate(new Date());
+    const [info,bk,menu]=await Promise.all([api('GET','/api/restaurante/info'),api('GET','/api/restaurante/reservas?data='+today+'&ate='+(()=>{const d=new Date();d.setDate(d.getDate()+6);return OSP.isoDate(d)})()),api('GET','/api/restaurante/menu')]);
+    S.info=info;TABLES=info.tables.map(t=>({id:t.id,n:t.seats,online:t.online}));S.closed=new Set(info.closedDays||[]);S.now=nowReal();
+    DISH={};bk.forEach(b=>b.lines.forEach(l=>DISH[l.dishId]=[l.name,l.unitCents/100]));
+    MENU=menu.map(d=>({id:d.id,cat:d.category,name:d.name,price:d.priceCents/100,stock:d.stock,low:d.lowAt??3,on:d.enabled,desc:d.description||'',locked:!!d.locked,lockedBy:d.lockedBy||''}));
+    S.hist=await api('GET','/api/restaurante/menu/historico').catch(()=>[]);
+    S.stk=await api('GET','/api/restaurante/stock?dias=7').catch(()=>null);
+    MENU.forEach(d=>{if(!DISH[d.id])DISH[d.id]=[d.name,d.price]});
+    S.ALL=bk.map(b=>({id:b.id,code:b.code,date:b.date,time:b.time,name:b.customerName||'Cliente',party:b.party,items:b.lines.map(l=>[l.dishId,l.qty]),
+      st:ST[b.status]||b.status,ord:OD[b.kitchen]||'novo',table:(['cancelada','nao_veio'].includes(b.status)?null:b.table),seen:b.seen,note:b.note||'',paid:b.totalCents/100,prepMin:Math.max(...b.lines.map(l=>l.prepMin||20)),arr:b.prepMode==='chegada',claim:b.arrivedClaim?b.arrivedClaim.slice(11):'',held:!!b.payHeld,heldH:Math.max(1,Math.round((b.reviewLeftMin||0)/60)),disp:b.dispute||''}));
+    S.R=S.ALL.filter(r=>r.date===today);
+    if(S.tab==='fin')S.fin=await api('GET','/api/restaurante/financas');
+    const fresh=newList().filter(r=>!S.announced.has(r.code));
+    fresh.forEach(r=>S.announced.add(r.code));
+    if(fresh.length){
+      const r=fresh[0];
+      toast(S.firstLoad?fresh.length+(fresh.length>1?' reservas novas por ver':' reserva nova por ver'):'Nova reserva: '+(r.date!==TODAY()?dLabel(r.date)+' ':'')+r.time+' · '+r.party+' pess. · '+(r.table?'mesa '+r.table:'mesa por atribuir')+' · '+r.items.reduce((a,i)=>a+i[1],0)+' pratos');
+    }
+    S.firstLoad=false;
+    document.title=(newList().length?'('+newList().length+') ':'')+'Restaurante · O Seu Prato';
+    S.loading=false;S.err='';startLive();
+  }catch(e){
+    S.loading=false;
+    if(e.status===401){S.key='';OSP.store.set('osp_rkey','');stopLive();S.err='Chave inválida ou restaurante suspenso.'}
+    else if(first){S.err=e.message}else toast(e.message);
+      }
+  const ae=document.activeElement;
+  if(first||!(ae&&['INPUT','TEXTAREA','SELECT'].includes(ae.tagName)))render();
+}
+/* Ações que escrevem no servidor. Devolve true se tratou o clique. */
+function pinVal(){if(!(S.info&&S.info.pinSet)){toast('Crie primeiro o PIN do responsável, no topo do menu');return ''}const e=document.getElementById('mgr-pin');const p=e?e.value:'';if(!/^\d{6}$/.test(p)){toast('Escreva o PIN do responsável (6 dígitos) no topo do menu');if(e)e.focus();return ''}return p}
+function realAction(a,v){
+  const go=async(p,b,okMsg)=>{try{await api('POST',p,b);if(okMsg)toast(okMsg)}catch(e){toast(e.message)}await loadAll()};
+  const bk=c=>ALLR().find(r=>r.code===c);
+  switch(a){
+    case 'arrive':{const r=bk(v);go('/api/restaurante/reservas/'+r.id+'/estado',{estado:'chegou'},r.ord==='pronto'?'Cliente chegou. Os pratos estão prontos':'Chegada registada: '+r.name);return true}
+    case 'noshow':go('/api/restaurante/reservas/'+bk(v).id+'/estado',{estado:'nao_veio'},'Falta registada. Recebe pelo menos 30% do valor (ou os pratos já preparados, se for mais).');return true;
+    case 'seat':{const [c,id]=v.split('|');S.pick=null;go('/api/restaurante/reservas/'+bk(c).id+'/estado',{estado:'sentada',mesa:id},'Sentado na mesa '+id);return true}
+    case 'finish':go('/api/restaurante/reservas/'+bk(v).id+'/estado',{estado:'concluida'},'Mesa libertada');return true;
+    case 'start':go('/api/restaurante/reservas/'+bk(v).id+'/cozinha',{estado:'em_preparacao'});return true;
+    case 'ready':go('/api/restaurante/reservas/'+bk(v).id+'/cozinha',{estado:'pronto'},'Pratos prontos');return true;
+    case 'serve':go('/api/restaurante/reservas/'+bk(v).id+'/cozinha',{estado:'servido'},'Pratos entregues');return true;
+    case 'setpin':{const a1=$('#pin-new').value,a2=$('#pin-new2').value;if(!/^\d{6}$/.test(a1)){toast('O PIN tem de ter 6 dígitos');return true}if(a1!==a2){toast('Os dois PIN não coincidem');return true}go('/api/restaurante/pin',{pin:a1},'PIN criado. Guarde-o: só o responsável o deve conhecer');return true}
+    case 'chpin':{const o=$('#pin-old').value,n=$('#pin-new').value;if(!/^\d{6}$/.test(o)||!/^\d{6}$/.test(n)){toast('Os PIN têm 6 dígitos');return true}go('/api/restaurante/pin',{pin:n,atual:o},'PIN alterado');return true}
+    case 'savedish':{(async()=>{try{const g=x=>document.getElementById(x+v);const price=parseFloat(g('dp-').value);const pin=pinVal();
+      if(!(price>=0)){toast('Preço inválido');return}if(!pin)return
+      await api('POST','/api/restaurante/pratos/'+v,{name:g('dn-').value,description:g('dd-').value,priceCents:OSP.toCents(price),pin});
+      await api('POST','/api/restaurante/pratos/'+v+'/trancar',{trancado:true,pin});toast('Submetido e trancado')}catch(e){toast(e.message)}await loadAll()})();return true}
+    case 'unlock':{const pin=pinVal();if(!pin)return true;go('/api/restaurante/pratos/'+v+'/trancar',{trancado:false,pin},'Prato destrancado: já pode editar');return true}
+    case 'lockall':{const pin=pinVal();if(!pin)return true;go('/api/restaurante/menu/trancar',{trancado:true,pin},'Menu todo trancado');return true}
+    case 'stk':{const [id,n]=v.split('|');const d=MENU.find(m=>m.id===id);go('/api/restaurante/pratos/'+id,{stock:Math.max(0,d.stock+ +n)});return true}
+    case 'on':{const d=MENU.find(m=>m.id===v);if(!d.on&&d.stock===0){toast('Sem stock. Aumente o stock para voltar a vender');return true}go('/api/restaurante/pratos/'+v,{enabled:!d.on});return true}
+    case 'newdish':{
+      const name=$('#nd-name').value.trim();const price=parseFloat($('#nd-price').value);
+      if(!name||!(price>=0)){toast('Indique o nome e o preço');return true}
+      {const pin=pinVal();if(!pin)return true;go('/api/restaurante/pratos',{name,category:$('#nd-cat').value,priceCents:OSP.toCents(price),stock:Math.max(0,parseInt($('#nd-stock').value)||0),pin},'Prato adicionado ao menu');return true}}
+    case 'seen':go('/api/restaurante/reservas/'+bk(v).id+'/visto',{});return true;
+    case 'tonline':{const t=TABLES.find(x=>x.id===v);
+      (async()=>{try{const r=await api('POST','/api/restaurante/mesas/'+encodeURIComponent(v)+'/online',{aberta:!t.online});
+        toast(t.online?(r.existingBookings?'Mesa '+v+' fechada. Atenção: '+r.existingBookings+' reserva(s) já confirmada(s) nesta mesa continuam válidas.':'Mesa '+v+' fechada a reservas online'):'Mesa '+v+' aberta a reservas online')}catch(e){toast(e.message)}await loadAll()})();return true}
+    case 'day':{const was=S.closed.has(v);
+      (async()=>{try{const r=await api('POST','/api/restaurante/dias',{data:v,fechado:!was});
+        toast(was?'Dia aberto a reservas':(r.existingBookings?'Dia fechado. Atenção: '+r.existingBookings+' reserva(s) já confirmada(s) neste dia continuam válidas.':'Dia fechado a reservas'))}catch(e){toast(e.message)}await loadAll()})();return true}
+    case 'login':{S.key=($('#rk').value||'').trim();if(!S.key){S.err='Introduza a chave.';render();return true}
+      OSP.store.set('osp_rkey',S.key);S.loading=true;S.err='';render();loadAll(true);return true}
+    case 'logout':stopLive();S.key='';OSP.store.set('osp_rkey','');S.info=null;S.R=[];S.ALL=[];render();return true;
+  }
+  return false;
+}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-a]');if(!t)return;
+  const a=t.dataset.a,v=t.dataset.v;
+  if(ON&&realAction(a,v))return;
+  switch(a){
+    case 'tab':S.tab=v;if(ON&&v==='fin')api('GET','/api/restaurante/financas').then(f=>{S.fin=f;render()}).catch(e=>toast(e.message));break;
+    case 'f':S.f=v;break;
+    case 'tick':S.now+=15;break;
+    case 'arrive':{const r=find(v);r.st='chegou';toast(r.ord==='pronto'?'Cliente chegou. Os pratos estão prontos':'Chegada registada: '+r.name);break}
+    case 'noshow':find(v).st='naoveio';toast('Marcada como não compareceu');break;
+    case 'pick':S.pick=v||null;break;
+    case 'seat':{const [c,id]=v.split('|');const r=find(c);r.table=id;r.st='sentada';S.pick=null;toast(r.name+' sentado na mesa '+id);break}
+    case 'finish':{const r=find(v);r.st='concluida';r.ord='servido';toast('Mesa libertada');break}
+    case 'start':{const r=find(v);r.ord='preparar';
+      r.items.forEach(([id,q])=>{const d=MENU.find(m=>m.id===id);if(d){d.stock=Math.max(0,d.stock-q);if(d.stock===0&&d.on){d.on=false;toast(d.name+' esgotado: removido da venda')}}});break}
+    case 'seen':find(v).seen=true;break;
+    case 'tonline':{const t=TABLES.find(x=>x.id===v);t.online=!t.online;toast(t.online?'Mesa '+v+' aberta a reservas online':'Mesa '+v+' fechada a reservas online');break}
+    case 'day':S.closed.has(v)?S.closed.delete(v):S.closed.add(v);toast(S.closed.has(v)?'Dia fechado a reservas':'Dia aberto a reservas');break;
+    case 'rday':S.day=v;break;
+    case 'mf':S.mf=v;break;
+    case 'revf':S.revf=v;break;
+    case 'stk':{const [id,n]=v.split('|');const d=MENU.find(m=>m.id===id);d.stock=Math.max(0,d.stock+ +n);if(d.stock===0)d.on=false;break}
+    case 'on':{const d=MENU.find(m=>m.id===v);if(!d.on&&d.stock===0){toast('Sem stock. Aumente o stock para voltar a vender');break}d.on=!d.on;toast(d.on?d.name+' disponível':d.name+' indisponível');break}
+    case 'newdish':{
+      const name=$('#nd-name').value.trim();const price=parseFloat($('#nd-price').value);
+      if(!name||!(price>=0)){toast('Indique o nome e o preço');return}
+      const stock=Math.max(0,parseInt($('#nd-stock').value)||0);
+      MENU.push({id:'n'+Date.now(),cat:$('#nd-cat').value,name,price,stock,on:stock>0});toast('Prato adicionado ao menu');break}
+    case 'reply':{const tx=($('#rp-'+v).value||'').trim();if(!tx){toast('Escreva uma resposta');return}REV.find(x=>x.id===+v).reply=tx;toast('Resposta publicada');break}
+    case 'ready':find(v).ord='pronto';toast('Pratos prontos para '+find(v).name);break;
+    case 'serve':find(v).ord='servido';toast('Pratos entregues');break;
+    case 'theme':{const d=document.documentElement;const dark=d.dataset.theme?d.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches;d.dataset.theme=dark?'light':'dark';break}
+  }
+  render();
+});
+document.addEventListener('change',e=>{
+  const lid=e.target.dataset&&e.target.dataset.low;
+  if(lid){const d=MENU.find(m=>m.id===lid),v=parseInt(e.target.value);
+    if(!(v>=0)){e.target.value=d.low??3;return}
+    d.low=v;if(ON)api('POST','/api/restaurante/pratos/'+lid,{lowAt:v}).then(()=>{toast('Alerta de '+d.name+': abaixo de '+v);loadAll()}).catch(x=>toast(x.message));else{toast('Alerta de '+d.name+': abaixo de '+v);render()}return}
+  const id=e.target.dataset&&e.target.dataset.price;if(!id)return;
+  const v=parseFloat(e.target.value);const d=MENU.find(m=>m.id===id);
+  if(ON){if(v>=0)api('POST','/api/restaurante/pratos/'+id,{priceCents:OSP.toCents(v)}).then(()=>{toast('Preço de '+d.name+' atualizado para '+eur(v));loadAll()}).catch(x=>toast(x.message));else e.target.value=d.price;return}
+  if(v>=0){d.price=v;toast('Preço de '+d.name+' atualizado para '+eur(v))}else e.target.value=d.price;
+});
+if(ON){if(S.key)loadAll(true);else render();setInterval(()=>{if(S.key&&!S.loading&&S.live!=='ligado')loadAll()},10000);setInterval(()=>{if(S.key&&!S.loading)loadAll()},60000)}else render();
+</script>
+
+</body>
+</html>
