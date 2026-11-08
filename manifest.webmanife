@@ -1,0 +1,21 @@
+{
+  "name": "O Seu Prato",
+  "short_name": "O Seu Prato",
+  "description": "Reserve mesa, escolha os pratos e pague antes de sair de casa.",
+  "lang": "pt-PT",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#FBF1E3",
+  "theme_color": "#C0502D",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Reservar", "url": "cliente.html", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] },
+    { "name": "Restaurante", "url": "restaurante.html", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] }
+  ]
+}
