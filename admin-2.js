@@ -36,4 +36,6 @@ function geral(){
   <div class="tile"><small>Reservas no mês</small><b class="num">${act().reduce((a,r)=>a+r.res,0).toLocaleString('pt-PT')}</b><span>${act().length} restaurantes</span></div>
   <div class="tile"><small>Clientes ativos</small><b class="num">${CL.filter(c=>c.st==='ativo').length}</b><span>${ON?(S.sum?S.sum.preRegistrations+' pré-registos':''):CL.length+' registados (amostra)'}</span></div></div>
   <div class="two"><div><h2 class="sec">Vendas por semana</h2><div class="panel"><div class="bars" role="img" aria-label="Vendas semanais, em milhares de euros">${WEEKS.map(([w,v],i)=>`<div class="${i===WEEKS.length-1?'last':''}"><b class="num">${(v/1000).toFixed(1).replace('.',',')}k</b><i style="height:${v/max*100}%"></i><small>${w}</small></div>`).join('')}</div></div>
-  <h2 class="sec">Restaurantes com mais vendas</h2>
+  <h2 class="sec">Restaurantes com mais vendas</h2><div class="panel">${top.map(r=>`<div class="hb"><span>${r.name}</span><span class="tr"><i style="width:${r.gmv/tm*100}%"></i></span><b class="num">${eur(r.gmv,0)}</b></div>`).join('')}</div></div>
+  <div><h2 class="sec">Por resolver</h2><div class="panel">${todo.length?todo.join(''):'<div class="empty">Nada pendente.</div>'}</div></div></div>`;
+}
