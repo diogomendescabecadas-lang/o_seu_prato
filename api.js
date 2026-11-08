@@ -1,4 +1,3 @@
-
 /* O servidor de O Seu Prato (Render). Para usar outro, abra a página com ?api=https://endereco */
 window.OSP_API_DEFAULT = window.OSP_API_DEFAULT || 'https://o-seu-prato-api.onrender.com';
 /* Ligação ao servidor de O Seu Prato.
@@ -65,4 +64,33 @@ window.OSP = (function () {
     toCents: (e) => Math.round(e * 100),
     isoDate: (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'),
   };
+})();
+
+/* Janela de apoio: carrega apoio.js nas páginas do cliente e do restaurante */
+(function () {
+  var cur = document.currentScript;
+  if (!cur || !cur.src) return;
+  var m = location.pathname.match(/\/(cliente|restaurante)(\.html)?$/);
+  if (!m) return;
+  var s = document.createElement('script');
+  s.src = cur.src.replace(/api\.js(\?.*)?$/, 'apoio.js');
+  s.defer = true;
+  s.dataset.papel = m[1];
+  document.head.appendChild(s);
+})();
+
+/* App instalável (PWA): manifesto, cor do tema e service worker. */
+(function () {
+  var cur = document.currentScript;
+  if (!cur || !cur.src) return;
+  var dir = cur.src.replace(/[^\/]*(\?.*)?$/, '');
+  if (!document.querySelector('link[rel=manifest]')) {
+    var l = document.createElement('link'); l.rel = 'manifest'; l.href = dir + 'manifest.webmanifest'; document.head.appendChild(l);
+  }
+  if (!document.querySelector('meta[name=theme-color]')) {
+    var m = document.createElement('meta'); m.name = 'theme-color'; m.content = '#C0502D'; document.head.appendChild(m);
+  }
+  if ('serviceWorker' in navigator && /^https:|^http:\/\/localhost/.test(location.href)) {
+    window.addEventListener('load', function () { navigator.serviceWorker.register(dir + 'sw.js', { scope: dir }).catch(function () {}); });
+  }
 })();
