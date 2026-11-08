@@ -6,6 +6,7 @@
 <meta name="robots" content="noindex">
 <style>:root{color-scheme:light;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}.osp-bar{padding:8px 16px;font:600 13px system-ui,sans-serif}.osp-bar a{color:inherit;opacity:.7;text-decoration:none}</style>
 <title>O Seu Prato</title>
+<script>function __e(m){var d=document.getElementById('__err');if(!d){d=document.createElement('div');d.id='__err';d.style.cssText='position:fixed;left:8px;right:8px;top:8px;z-index:9999;background:#B3261E;color:#fff;padding:10px;border-radius:8px;font:13px system-ui;white-space:pre-wrap';(document.body||document.documentElement).appendChild(d)}d.textContent='Erro: '+m}window.addEventListener('error',function(e){__e(e.message+' (linha '+e.lineno+')')});window.addEventListener('unhandledrejection',function(e){__e(String(e.reason&&e.reason.message||e.reason))})</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
 <style>
 /* Layout: app shell. Bottom tab bar on phones, top nav on tablet/desktop. Card grid grows 1 → 2 → 3 columns. */
@@ -70,7 +71,7 @@ header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;backgroun
 .card{background:var(--surface);border:1px solid var(--line);border-radius:20px;overflow:hidden;text-align:left;display:block;width:100%;box-shadow:var(--shadow)}
 .cover{position:relative;aspect-ratio:16/9;max-width:100%;display:grid;place-items:center;overflow:hidden}
 .cover svg.pl{width:46%;max-width:180px}
-.cover .tag{position:absolute;left:12px;bottom:12px;background:rgba(255,255,255,.92);color:#2E1F15;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700}
+  .cover .tag{position:absolute;left:12px;bottom:12px;background:rgba(255,255,255,.92);color:#2E1F15;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700}
 .favb{position:absolute;right:10px;top:10px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.92);display:grid;place-items:center;color:#2E1F15}
 .favb svg{width:20px;height:20px}
 .favb[aria-pressed="true"]{color:var(--terra)}
@@ -85,7 +86,7 @@ header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;backgroun
 /* buttons */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--terra);color:var(--terra-ink);font-weight:700;border-radius:14px;padding:14px 20px;width:100%}
 .btn.sec{background:var(--surface2);color:var(--ink)}
-  .btn.ghost{background:none;border:1.5px solid var(--line);color:var(--ink)}
+.btn.ghost{background:none;border:1.5px solid var(--line);color:var(--ink)}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .back{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-weight:600;padding-block:14px}
 
@@ -153,7 +154,7 @@ textarea{width:100%;border:1.5px solid var(--line);background:var(--bg);border-r
 .ord .ph{width:56px;height:56px;border-radius:12px;display:grid;place-items:center;flex:none}
 .ord .ph svg{width:70%}
 .ord>div:nth-child(2){flex:1;min-width:0}
-.acts{display:flex;gap:8px;margin-top:10px}
+  .acts{display:flex;gap:8px;margin-top:10px}
 .acts .btn{padding:10px 12px;font-size:14px}
 
 /* reviews */
@@ -189,7 +190,7 @@ textarea{width:100%;border:1.5px solid var(--line);background:var(--bg);border-r
 <script src="api.js"></script>
 <script>
 const eur=n=>n.toLocaleString('pt-PT',{style:'currency',currency:'EUR'});
-  const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const ic={
  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>',
  heart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-8-5.2-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 10c0 5.8-8 11-8 11z"/></svg>',
@@ -230,7 +231,7 @@ const R=[
   {cat:'Pratos',items:[
   {id:'m3',name:'Arroz de tamboril',desc:'Malandrinho, com gambas e coentros.',price:19.9,hue:14},
   {id:'m4',name:'Robalo grelhado',desc:'Com legumes e batata cozida.',price:22.5,hue:200},
-  {id:'m5',name:'Cataplana de marisco (2 pessoas)',desc:'Amêijoa, gamba, mexilhão e peixe do dia.',price:46,hue:20}]}],
+      {id:'m5',name:'Cataplana de marisco (2 pessoas)',desc:'Amêijoa, gamba, mexilhão e peixe do dia.',price:46,hue:20}]}],
  reviews:[{u:'Inês C.',r:5,t:'A cataplana chegou à mesa mesmo à hora marcada. Excelente.',d:'há 5 dias'},{u:'Pedro L.',r:5,t:'Peixe fresquíssimo.',d:'há 2 semanas'}]},
 {id:'oliveira',name:'Casa Oliveira',cuisine:'Vegetariana',city:'Príncipe Real, Lisboa',rating:4.6,n:156,price:2,dist:'900 m',hue:96,hours:'12:00–15:00 · 19:00–22:00',addr:'Rua da Escola Politécnica 88',
  menu:[{cat:'Pratos',items:[
@@ -251,7 +252,7 @@ const R=[
  reviews:[{u:'Diogo M.',r:4,t:'O ramen estava pronto na hora certa.',d:'há 1 semana'}]},
 {id:'massa',name:'Massa Fresca',cuisine:'Italiana',city:'Campo de Ourique, Lisboa',rating:4.5,n:187,price:2,dist:'1,6 km',hue:50,hours:'12:00–15:00 · 19:00–22:30',addr:'Rua Ferreira Borges 120',
  menu:[{cat:'Massas',items:[
-     {id:'a1',name:'Tagliatelle ao ragù',desc:'Massa fresca, ragù de vaca cozinhado 6 horas.',price:12.5,hue:16},
+  {id:'a1',name:'Tagliatelle ao ragù',desc:'Massa fresca, ragù de vaca cozinhado 6 horas.',price:12.5,hue:16},
   {id:'a2',name:'Ravioli de burrata',desc:'Tomate cherry e manjericão.',price:13.5,hue:8},
   {id:'a3',name:'Carbonara',desc:'Guanciale, gema e pecorino.',price:12.9,hue:46}]},
   {cat:'Sobremesas',items:[
@@ -313,7 +314,7 @@ const stars=n=>'★'.repeat(Math.round(n))+'☆'.repeat(5-Math.round(n));
 function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2200)}
 
 /* Navegação */
-const navItems=[['home','Descobrir',ic.home],['favs','Favoritos',ic.heart],['orders','Reservas',ic.cal],['me','Perfil',ic.user]];
+  const navItems=[['home','Descobrir',ic.home],['favs','Favoritos',ic.heart],['orders','Reservas',ic.cal],['me','Perfil',ic.user]];
 function navKey(){return ['rest','order','cart','reserve','pay','done','account'].includes(S.screen)?'home':S.screen}
 function header(){
   const k=navKey();
@@ -341,7 +342,7 @@ function listHTML(){
 }
 function home(){
   return `<section class="hero"><h1>Escolha. Reserve. Chegue. <em>Coma.</em></h1><p>Escolha os pratos, reserve mesa e pague antes de sair de casa. Quando chegar, a cozinha já está a preparar a sua refeição.</p></section>
-    <div class="steps"><div>Escolha<small>os pratos</small></div><div>Reserve<small>a mesa</small></div><div>Chegue<small>à hora</small></div><div>Coma<small>sem espera</small></div></div>
+  <div class="steps"><div>Escolha<small>os pratos</small></div><div>Reserve<small>a mesa</small></div><div>Chegue<small>à hora</small></div><div>Coma<small>sem espera</small></div></div>
   <label class="search">${ic.search}<input id="q" type="search" placeholder="Restaurante, cozinha ou prato" value="${esc(S.q)}" autocomplete="off"></label>
   <div class="chips" role="group" aria-label="Cozinhas">${cuisines.map(c=>`<button class="chip" data-a="cu" data-v="${c}" aria-pressed="${S.cu===c}">${c}</button>`).join('')}</div>
   <div id="list">${listHTML()}</div>`;
@@ -372,7 +373,7 @@ function restaurant(){
   <div class="cartbar"><button class="btn" data-a="reserve"><span>Reservar mesa</span><span>1.º escolha a mesa, depois os pratos</span></button></div>`;
 }
 const STEPS=['Mesa','Pedido','Resumo','Pagamento'];
-function prog(n){return `<div class="progress" aria-label="Passo ${n} de 4: ${STEPS[n-1]}">${[1,2,3,4].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}</div>`}
+  function prog(n){return `<div class="progress" aria-label="Passo ${n} de 4: ${STEPS[n-1]}">${[1,2,3,4].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}</div>`}
 function summary(r,withBtn,label,act){
   const items=Object.entries(S.cart).map(([id,q])=>`<div class="line"><span>${q} × ${dishIndex[id].name}</span><span class="num">${eur(dishIndex[id].price*q)}</span></div>`).join('');
   const tot=cartTotal();const disc=S.usePts?Math.min(S.points,Math.floor(tot*20))/20:0;
@@ -395,7 +396,7 @@ function reserve(){
   <div class="panel"><h3>Pessoas</h3><span class="stepper"><button data-a="party" data-v="-1" aria-label="Menos">−</button><span class="num">${S.party}</span><button data-a="party" data-v="1" aria-label="Mais">+</button></span></div>
   <div class="panel"><h3>Hora de chegada</h3>${loadingSlots?'<p class="meta">A ver as mesas livres…</p>':any?`<div class="opts">${sl.map(x=>`<button class="opt num" data-a="time" data-v="${x.t}" aria-pressed="${S.time===x.t}" ${x.free&&x.left>=Math.ceil(S.party/2)?'':'disabled'}>${x.t}</button>`).join('')}</div><p class="meta" style="margin-bottom:0">Os horários riscados não têm mesa livre para ${S.party} ${S.party>1?'pessoas':'pessoa'}.${ON&&S.liveOk?' <b style="color:var(--olive)">● Atualizado em direto</b>':''}</p>`:`<div class="note">Não há horas livres para este dia e este número de pessoas: o restaurante pode estar cheio ou já fora do horário. Experimente outro dia ou menos pessoas.</div>`}</div>
   <div class="panel"><h3>Nota para o restaurante</h3><textarea id="note" placeholder="Alergias, cadeira de bebé, aniversário…">${esc(S.note)}</textarea></div></div>
-    <div class="sticky"><div class="panel"><h3>A sua mesa</h3><div class="line"><span>Restaurante</span><b>${r.name}</b></div><div class="line"><span>Pessoas</span><b>${S.party}</b></div>${S.time?`<div class="line"><span>Quando</span><b>${ds[S.date].toLocaleDateString('pt-PT',{weekday:'short',day:'numeric',month:'short'})} · ${S.time}</b></div>`:`<div class="meta">Escolha uma hora para continuar.</div>`}</div>
+  <div class="sticky"><div class="panel"><h3>A sua mesa</h3><div class="line"><span>Restaurante</span><b>${r.name}</b></div><div class="line"><span>Pessoas</span><b>${S.party}</b></div>${S.time?`<div class="line"><span>Quando</span><b>${ds[S.date].toLocaleDateString('pt-PT',{weekday:'short',day:'numeric',month:'short'})} · ${S.time}</b></div>`:`<div class="meta">Escolha uma hora para continuar.</div>`}</div>
   <button class="btn" data-a="go" data-v="order" ${S.time?'':'disabled'}>Continuar: escolher os pratos</button></div></div>`;
 }
 function order(){
@@ -426,7 +427,7 @@ function pay(){
   return `<button class="back" data-a="go" data-v="cart">← Resumo</button>${prog(4)}
   <div class="two"><div><h1 style="font-size:28px;margin-bottom:12px">Pagamento</h1>
   <div class="panel"><h3>Quando preparar os pratos</h3>
-  ${[['hora','Para a hora da reserva','A cozinha começa antes, para estar pronto quando chegar.'],['chegada','Só quando eu chegar','Paga agora, mas a cozinha só começa quando chegar ao restaurante. Espera uns minutos à mesa.']].map(([k,t,d])=>`<button class="method" data-a="prep" data-v="${k}" aria-pressed="${S.prep===k}"><span class="mi">${k==='hora'?'⏱':'🚪'}</span><span><b>${t}</b><small>${d}</small></span></button>`).join('')}</div>
+    ${[['hora','Para a hora da reserva','A cozinha começa antes, para estar pronto quando chegar.'],['chegada','Só quando eu chegar','Paga agora, mas a cozinha só começa quando chegar ao restaurante. Espera uns minutos à mesa.']].map(([k,t,d])=>`<button class="method" data-a="prep" data-v="${k}" aria-pressed="${S.prep===k}"><span class="mi">${k==='hora'?'⏱':'🚪'}</span><span><b>${t}</b><small>${d}</small></span></button>`).join('')}</div>
   <div class="panel"><h3>Forma de pagamento</h3>
   ${[['mbway','MB','MB WAY','Pague no telemóvel'],['card','VISA','Cartão','Débito ou crédito'],['ref','REF','Referência Multibanco','Válida durante 1 hora']].map(([k,i,t,d])=>`<button class="method" data-a="method" data-v="${k}" aria-pressed="${S.method===k}"><span class="mi">${i}</span><span><b>${t}</b><small>${d}</small></span></button>`).join('')}</div>
   ${ON?'':`<div class="panel"><h3>Pontos Prato</h3><button class="method" data-a="pts" aria-pressed="${S.usePts}"><span class="mi">★</span><span><b>Usar ${Math.min(S.points,Math.floor(s.tot*20))} pontos</b><small>Desconto de ${eur(maxDisc)} · tem ${S.points} pontos</small></span></button></div>`}</div>
@@ -450,7 +451,7 @@ function done(){
   <div class="mid"><h3 style="font-size:20px">${r.name}</h3><div>${o.when} · ${o.people} ${o.people>1?'pessoas':'pessoa'}</div>${qr(o.code)}<div class="code">${o.code}</div>
   <div class="note">${o.prep==='chegada'?'O restaurante já recebeu a reserva e o pedido pago. Mostre este código à chegada: a cozinha começa a preparar os pratos nesse momento.':'O restaurante já recebeu a reserva e os pratos. Mostre este código à chegada e sente-se: a refeição estará a ser servida.'}</div>
   <div class="meta">Ganhou ${o.earned} pontos Prato.</div></div></div>
-    <div style="max-width:420px;margin:0 auto;display:grid;gap:8px"><button class="btn" data-a="go" data-v="orders">Ver as minhas reservas</button><button class="btn ghost" data-a="go" data-v="home">Voltar ao início</button></div>`;
+  <div style="max-width:420px;margin:0 auto;display:grid;gap:8px"><button class="btn" data-a="go" data-v="orders">Ver as minhas reservas</button><button class="btn ghost" data-a="go" data-v="home">Voltar ao início</button></div>`;
 }
 function favs(){
   const l=R.filter(r=>S.favs.has(r.id));
@@ -464,7 +465,7 @@ function orders(){
     ${o.claim&&up?`<div class="meta">Chegada indicada às ${o.claim.slice(11)}. O restaurante foi avisado.</div>`:''}${o.dispute==='aberta'?'<div class="note">A sua contestação está a ser analisada pela administração. O valor fica retido até haver decisão.</div>':o.dispute==='resolvida_cliente'?'<div class="note">A administração deu-lhe razão: o valor foi devolvido.</div>':o.dispute==='resolvida_restaurante'?'<div class="meta">A administração confirmou a falta.</div>':''}
     ${o.canConfirm?`<div class="note"><b>O serviço correu bem?</b> O pagamento ao restaurante fica retido até confirmar, ou até passarem ${Math.max(1,Math.round(o.left/60))} h sem queixa.</div>`:''}${o.canReport&&!o.canConfirm?'<div class="note">O serviço não avançou? Pode reportar o problema. O pagamento fica retido até a administração decidir.</div>':''}
     ${S.pb===i?`<div class="panel" style="margin-top:8px"><h3>O que aconteceu?</h3><textarea id="pbn" placeholder="Conte-nos o problema (o que pediu, o que faltou, com quem falou…)"></textarea><div class="acts"><button class="btn" data-a="sendProblem" data-v="${i}">Enviar problema</button><button class="btn ghost" data-a="noProblem">Fechar</button></div></div>`:''}
-    ${S.ct===i?`<div class="panel" style="margin-top:8px"><h3>Eu estive lá</h3><textarea id="ctn" placeholder="Conte-nos o que aconteceu (hora a que chegou, com quem falou…)"></textarea><div class="acts"><button class="btn" data-a="sendContest" data-v="${i}">Enviar contestação</button><button class="btn ghost" data-a="noContest">Fechar</button></div></div>`:''}
+        ${S.ct===i?`<div class="panel" style="margin-top:8px"><h3>Eu estive lá</h3><textarea id="ctn" placeholder="Conte-nos o que aconteceu (hora a que chegou, com quem falou…)"></textarea><div class="acts"><button class="btn" data-a="sendContest" data-v="${i}">Enviar contestação</button><button class="btn ghost" data-a="noContest">Fechar</button></div></div>`:''}
     <div class="acts">${o.canConfirm?`<button class="btn" data-a="okpay" data-v="${i}">Está tudo bem</button>`:''}${o.canReport?`<button class="btn ghost" data-a="problem" data-v="${i}">Houve um problema</button>`:''}${o.canCheckin?`<button class="btn" data-a="checkin" data-v="${i}">Já cheguei</button>`:''}${o.canContest?`<button class="btn ghost" data-a="contest" data-v="${i}">Contestar falta</button>`:''}${up?`<button class="btn sec" data-a="ticket" data-v="${i}">Ver código</button>${ON?`<button class="btn ghost" data-a="cancel" data-v="${i}">Cancelar</button>`:''}`:`<button class="btn sec" data-a="repeat" data-v="${i}">Repetir pedido</button>`}${!up&&!o.rated?`<button class="btn" data-a="rate" data-v="${i}">Avaliar</button>`:''}${o.rated&&!ON?'<span class="pill" style="align-self:center">Avaliado</span>':''}</div></div>`}).join('')+`</div>`;
 }
 function me(){
@@ -510,7 +511,7 @@ async function loadData(){
     const full=await Promise.all(list.map(async r=>{
       const menu=await OSP.get('/api/restaurantes/'+encodeURIComponent(r.id)+'/menu');
       const cats=[];
-      menu.forEach(d=>{let c=cats.find(x=>x.cat===d.category);if(!c)cats.push(c={cat:d.category,items:[]});
+            menu.forEach(d=>{let c=cats.find(x=>x.cat===d.category);if(!c)cats.push(c={cat:d.category,items:[]});
         c.items.push({id:r.id+':'+d.id,name:d.name,desc:d.description||'',price:OSP.cents(d.priceCents),hue:hueOf(d.id),out:d.soldOut})});
       return {id:r.id,name:r.name,cuisine:r.cuisine,city:r.city,addr:r.address,rating:0,n:0,price:2,dist:'',hue:hueOf(r.id),
         hours:r.openFrom+'–'+r.openTo,openFrom:r.openFrom,openTo:r.openTo,menu:cats,reviews:[]};
@@ -578,7 +579,9 @@ document.addEventListener('click',e=>{
   const t=e.target.closest('[data-a]');if(!t)return;
   if(t.dataset.a==='closeRv'&&e.target!==t&&e.target.closest('[data-stop]'))return;
   const a=t.dataset.a,v=t.dataset.v;
-  switch(a){    case 'open':if(S.crid&&S.crid!==v){S.cart={};S.time=null;S.slotsList={}}S.rid=v;S.crid=v;S.tab='menu';go('rest');break;
+  switch(a){
+    case 'go':go(v);break;
+    case 'open':if(S.crid&&S.crid!==v){S.cart={};S.time=null;S.slotsList={}}S.rid=v;S.crid=v;S.tab='menu';go('rest');break;
     case 'reserve':S.crid=S.rid;S.slotsList={};go('reserve');break;
     case 'tab':S.tab=v;render();break;
     case 'cu':S.cu=v;render();break;
@@ -598,7 +601,7 @@ document.addEventListener('click',e=>{
       const earned=Math.floor(s.pay);
       if(S.usePts)S.points-=Math.round(s.disc*20);
       S.points+=earned;
-      S.orders.unshift({prep:S.prep,code,rid:r.id,when:dayLabel(ds[S.date],S.date)+' · '+S.time,people:S.party,items:Object.entries(S.cart),total:s.pay,status:'Confirmado',rated:false,earned});
+        S.orders.unshift({prep:S.prep,code,rid:r.id,when:dayLabel(ds[S.date],S.date)+' · '+S.time,people:S.party,items:Object.entries(S.cart),total:s.pay,status:'Confirmado',rated:false,earned});
       S.cur=0;S.cart={};S.time=null;S.usePts=false;S.note='';S.prep='hora';go('done');break}
     case 'ticket':S.cur=+v||0;go('done');break;
     case 'reload':loadData();break;
@@ -684,6 +687,3 @@ if(ON)loadData();else render();
 
 </body>
 </html>
-
-    case 'go':go(v);break;
-      
