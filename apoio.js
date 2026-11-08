@@ -82,3 +82,75 @@
     function field(key, label, tag, val, attrs) {
       var l = el('label', {}, label); var i = el(tag, attrs || {}); if (val) i.value = val; f[key] = i; l.appendChild(i); form.appendChild(l);
     }
+    form.appendChild(el('p', { class: 'ap-note', style: 'padding:0' }, 'Deixe o seu pedido. A nossa equipa responde por email.'));
+    field('nome', 'O seu nome', 'input', '', { type: 'text', autocomplete: 'name', maxlength: '100' });
+    field('email', 'O seu email', 'input', '', { type: 'email', autocomplete: 'email', inputmode: 'email', maxlength: '150' });
+    field('codigo', 'Código da reserva (se tiver)', 'input', '', { type: 'text', maxlength: '30' });
+    field('mensagem', 'O que aconteceu?', 'textarea', last, { maxlength: '2000' });
+    var hp = el('input', { type: 'text', tabindex: '-1', autocomplete: 'off', 'aria-hidden': 'true', style: 'position:absolute;left:-9999px' }); form.appendChild(hp);
+    var cl = el('label', { class: 'c' }); var cb = el('input', { type: 'checkbox' }); cl.appendChild(cb);
+    var sp = el('span', {}, 'Aceito que O Seu Prato guarde estes dados para responder ao meu pedido. ');
+    var pl = el('a', { href: 'privacidade.html', target: '_blank', rel: 'noopener' }, 'Política de privacidade'); sp.appendChild(pl); cl.appendChild(sp); form.appendChild(cl);
+    var err = el('div', { class: 'ap-err', role: 'alert' }); form.appendChild(err);
+    var row = el('div', { style: 'display:flex;gap:8px' });
+    var ok = el('button', { class: 'ap-go', type: 'submit', style: 'padding:12px 16px' }, 'Enviar pedido');
+    var back = el('button', { class: 'ap-chip', type: 'button' }, 'Voltar à conversa');
+    row.appendChild(ok); row.appendChild(back); form.appendChild(row);
+    box.insertBefore(form, document.getElementById('ap-bar'));
+    function close() { form.remove(); formOpen = false; msgs.hidden = false; document.getElementById('ap-bar').hidden = false; input.focus(); }
+    back.addEventListener('click', close);
+    form.addEventListener('submit', function (e) {
+      e.preventDefault(); err.textContent = '';
+      if (!f.nome.value.trim() || !/^\S+@\S+\.\S+$/.test(f.email.value.trim())) { err.textContent = 'Indique o seu nome e um email válido.'; return; }
+      if (!f.mensagem.value.trim()) { err.textContent = 'Escreva o que aconteceu.'; return; }
+      if (!cb.checked) { err.textContent = 'Aceite a caixa de consentimento para continuar.'; return; }
+      ok.disabled = true; ok.textContent = 'A enviar…';
+      OSP.post('/api/apoio/pedido', {
+        nome: f.nome.value, email: f.email.value, codigo: f.codigo.value || undefined, mensagem: f.mensagem.value,
+        consentimento: true, conversa: H.slice(-12), _gotcha: hp.value || undefined
+      }, TOK()).then(function () {
+        close(); if (teamBtn) { teamBtn.remove(); teamBtn = null; }
+        add('assistant', 'Pedido enviado. A nossa equipa responde para o email que indicou.', false);
+      }).catch(function (e2) { err.textContent = e2.message || 'Não foi possível enviar. Tente outra vez.'; ok.disabled = false; ok.textContent = 'Enviar pedido'; });
+    });
+    if (ROLE === 'cliente' && TOK()) OSP.get('/api/eu', TOK()).then(function (u) { if (!f.nome.value) f.nome.value = u.name || ''; if (!f.email.value) f.email.value = u.email || ''; }).catch(function () {});
+    f.nome.focus();
+  }
+
+  function toggle(open) {
+    box.hidden = !open; btn.setAttribute('aria-expanded', String(open));
+    if (open) { (formOpen ? form.querySelector('input') : input).focus(); }
+    else btn.focus();
+  }
+
+  function build() {
+    document.head.appendChild(css);
+    btn = el('button', { class: 'ap-btn', type: 'button', 'aria-expanded': 'false', 'aria-controls': 'ap-box' });
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-5.4A8 8 0 1 1 21 12z"/></svg>';
+    btn.appendChild(document.createTextNode('Apoio'));
+    box = el('div', { class: 'ap-box', id: 'ap-box', role: 'dialog', 'aria-label': 'Apoio O Seu Prato', hidden: 'hidden' });
+    var hd = el('div', { class: 'ap-hd' }, 'Apoio O Seu Prato');
+    var x = el('button', { class: 'ap-x', type: 'button', 'aria-label': 'Fechar apoio' }, '×'); hd.appendChild(x);
+    msgs = el('div', { class: 'ap-msgs', 'aria-live': 'polite' });
+    var bar = el('div', { id: 'ap-bar' });
+    var row = el('div', { class: 'ap-in' });
+    input = el('input', { type: 'text', maxlength: '500', placeholder: 'Escreva a sua pergunta', 'aria-label': 'A sua pergunta', autocomplete: 'off' });
+    send = el('button', { class: 'ap-go', type: 'button' }, 'Enviar');
+    row.appendChild(input); row.appendChild(send);
+    bar.appendChild(row);
+    bar.appendChild(el('div', { class: 'ap-note' }, 'Assistente com inteligência artificial: pode errar. Não escreva dados de cartão nem palavras-passe. Pode sempre falar com a equipa.'));
+    var tb = el('button', { class: 'ap-chip', type: 'button', style: 'margin:0 14px 12px' }, 'Falar com a equipa'); tb.addEventListener('click', openForm); bar.appendChild(tb);
+    box.appendChild(hd); box.appendChild(msgs); box.appendChild(bar);
+    add('assistant', GREET, false);
+    chips = el('div', { class: 'ap-chips' });
+    CHIPS.forEach(function (c) { var b = el('button', { class: 'ap-chip', type: 'button' }, c); b.addEventListener('click', function () { say(c); }); chips.appendChild(b); });
+    msgs.appendChild(chips);
+    document.body.appendChild(box); document.body.appendChild(btn);
+    btn.addEventListener('click', function () { toggle(box.hidden); });
+    x.addEventListener('click', function () { toggle(false); });
+    send.addEventListener('click', function () { var t = input.value; input.value = ''; say(t); });
+    input.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); send.click(); } });
+    box.addEventListener('keydown', function (e) { if (e.key === 'Escape') toggle(false); });
+  }
+  if (document.body) build(); else document.addEventListener('DOMContentLoaded', build);
+})();
