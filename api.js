@@ -77,6 +77,11 @@ window.OSP = (function () {
   s.defer = true;
   s.dataset.papel = m[1];
   document.head.appendChild(s);
+  /* Imagens: o restaurante carrega as fotos, o cliente vê-as */
+  var si = document.createElement('script');
+  si.src = cur.src.replace(/api\.js(\?.*)?$/, m[1] === 'restaurante' ? 'imagens-rest.js' : 'imagens-cli.js');
+  si.defer = true;
+  document.head.appendChild(si);
 })();
 
 /* App instalável (PWA): manifesto, cor do tema e service worker. */
